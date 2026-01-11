@@ -4,18 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Ký Lễ Hằng Thuận - Chùa Bửu Đà</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .font-serif { font-family: Georgia, Cambria, "Times New Roman", Times, serif; }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        /* CẤU HÌNH FONT */
+        body { 
+            font-family: 'Be Vietnam Pro', sans-serif; 
+            color: #44403c; 
+        }
+        
+        /* CẤU HÌNH RIÊNG CHO TIÊU ĐỀ */
+        .font-serif { 
+            font-family: 'Merriweather', serif !important; /* Ưu tiên tuyệt đối */
+            
+            /* 2. ÉP BUỘC VIẾT HOA TOÀN BỘ */
+            text-transform: uppercase !important;
+            
+            /* 3. TẠO KHOẢNG CÁCH CHO DẤU KHÔNG BỊ DÍNH */
+            line-height: 1.6 !important; /* Tăng chiều cao dòng */
+            letter-spacing: 1.5px;       /* Tăng khoảng cách giữa các chữ cái cho thoáng */
+            padding-top: 10px;           /* Thêm khoảng trống phía trên */
+            padding-bottom: 10px;
+        }
+
+        /* Xử lý các thẻ H1, H2 mặc định của Tailwind để không bị cắt chữ */
+        h1, h2, h3 {
+            line-height: 1.6 !important;
+        }
+
+        /* Các hiệu ứng cũ */
+        .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #b45309; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #b45309; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
+</head>
 </head>
 <body class="bg-amber-50/30 text-stone-800">
     <div id="root"></div>
