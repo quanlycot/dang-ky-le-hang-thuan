@@ -7,158 +7,193 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     
     <style>
-        /* CẤU HÌNH FONT */
-        body { 
-            font-family: 'Be Vietnam Pro', sans-serif; 
-            color: #44403c; 
-        }
-        
-        /* CẤU HÌNH RIÊNG CHO TIÊU ĐỀ */
-        .font-serif { 
-            font-family: 'Merriweather', serif !important; /* Ưu tiên tuyệt đối */
-            
-            /* 2. ÉP BUỘC VIẾT HOA TOÀN BỘ */
-            text-transform: uppercase !important;
-            
-            /* 3. TẠO KHOẢNG CÁCH CHO DẤU KHÔNG BỊ DÍNH */
-            line-height: 1.6 !important; /* Tăng chiều cao dòng */
-            letter-spacing: 1.5px;       /* Tăng khoảng cách giữa các chữ cái cho thoáng */
-            padding-top: 10px;           /* Thêm khoảng trống phía trên */
-            padding-bottom: 10px;
-        }
-
-        /* Xử lý các thẻ H1, H2 mặc định của Tailwind để không bị cắt chữ */
-        h1, h2, h3 {
-            line-height: 1.6 !important;
-        }
-
-        /* Các hiệu ứng cũ */
-        .fade-in { animation: fadeIn 0.4s ease-out; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; color: #44403c; background-color: #fffbeb; }
+        .font-title { font-family: 'Be Vietnam Pro', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px; line-height: 1.4; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #b45309; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a29e; }
     </style>
 </head>
-</head>
-<body class="bg-amber-50/30 text-stone-800">
+<body>
     <div id="root"></div>
+
+    <script>
+        // Cấu hình tên chùa ở đây để dùng chung
+        const CONFIG_TEMPLE_NAME = "Chùa Bửu Đà";
+        const CONFIG_TEMPLE_ADDRESS = "419/11 Cách Mạng Tháng 8, P.Hoà Hưng, Q.10, Tp.HCM";
+
+        function exportToWordGlobal(ceremony) {
+            try {
+                if (!ceremony) {
+                    alert("Chưa có dữ liệu để xuất file!");
+                    return;
+                }
+
+                // Hàm hỗ trợ (Helper)
+                const safe = (txt) => txt ? txt : '...';
+                const dateStr = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : '...';
+
+                // Nội dung HTML cho file Word
+                const content = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset="utf-8">
+                    <title>PhieuDangKy</title>
+                    <style>
+                        body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.4; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                        td { padding: 5px; vertical-align: top; }
+                        .title { text-align: center; font-weight: bold; text-transform: uppercase; margin: 0; color: #B45309; }
+                        .section { font-weight: bold; border-bottom: 1px solid #000; margin-top: 20px; padding-bottom: 3px; text-transform: uppercase; }
+                    </style>
+                </head>
+                <body>
+                    <p style="text-align: center; font-weight: bold; color: #666; font-size: 11pt; margin:0;">GIÁO HỘI PHẬT GIÁO VIỆT NAM - TP.HCM</p>
+                    <h1 class="title" style="font-size: 18pt; margin-top: 5px;">${CONFIG_TEMPLE_NAME.toUpperCase()}</h1>
+                    <p style="text-align: center; font-style: italic; margin-bottom: 20px;">${CONFIG_TEMPLE_ADDRESS}</p>
+                    <hr style="width: 50%;" />
+                    
+                    <h2 style="text-align: center; text-transform: uppercase; font-size: 16pt; margin-top: 20px;">PHIẾU ĐĂNG KÝ LỄ HẰNG THUẬN</h2>
+                    <p style="text-align: center;">Mã hồ sơ: <b>#${ceremony.id ? String(ceremony.id).slice(-6) : '---'}</b></p>
+                    
+                    <div style="border: 2px solid #333; padding: 10px; margin: 15px 0; text-align: center; background-color: #f9f9f9;">
+                        <b>NGƯỜI LIÊN HỆ:</b> ${safe(ceremony.contactPhone)}
+                    </div>
+                    
+                    <div class="section">I. THỜI GIAN & ĐỊA ĐIỂM</div>
+                    <table border="1" bordercolor="#ccc">
+                        <tr>
+                            <td width="150"><b>Ngày Dương:</b></td><td>${dateStr(ceremony.date)}</td>
+                            <td width="120"><b>Ngày Âm:</b></td><td>${safe(ceremony.lunarDate)}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Giờ làm lễ:</b></td><td>${safe(ceremony.time)}</td>
+                            <td><b>Số khách:</b></td><td>${safe(ceremony.guestCount)} người</td>
+                        </tr>
+                    </table>
+
+                    <div class="section">II. THÔNG TIN HAI HỌ</div>
+                    <table border="1" bordercolor="#ccc">
+                        <tr style="background-color: #eee;">
+                            <td style="text-align: center; width: 50%;"><b>NHÀ TRAI</b></td>
+                            <td style="text-align: center; width: 50%;"><b>NHÀ GÁI</b></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Họ tên: <b>${safe(ceremony.groom?.fullName)}</b><br/>
+                                Pháp danh: ${safe(ceremony.groom?.dharmaName)}<br/>
+                                Cha: ${safe(ceremony.groom?.fatherName)}<br/>
+                                Mẹ: ${safe(ceremony.groom?.motherName)}<br/>
+                                SĐT: ${safe(ceremony.groom?.phone)}<br/>
+                                Đ/c: ${safe(ceremony.groom?.address)}
+                            </td>
+                            <td>
+                                Họ tên: <b>${safe(ceremony.bride?.fullName)}</b><br/>
+                                Pháp danh: ${safe(ceremony.bride?.dharmaName)}<br/>
+                                Cha: ${safe(ceremony.bride?.fatherName)}<br/>
+                                Mẹ: ${safe(ceremony.bride?.motherName)}<br/>
+                                SĐT: ${safe(ceremony.bride?.phone)}<br/>
+                                Đ/c: ${safe(ceremony.bride?.address)}
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="section">III. DỊCH VỤ & YÊU CẦU</div>
+                    <ul>
+                        <li><b>Tiệc chay:</b> ${ceremony.hasBanquet ? `Có (${safe(ceremony.banquetTables)} bàn)` : 'Không'}</li>
+                        <li><b>Media:</b> ${ceremony.mediaOption === 'temple' ? 'Nhờ Chùa hỗ trợ' : 'Gia đình tự túc'}</li>
+                        <li><b>Hoa:</b> ${safe(ceremony.flowerPreferences)}</li>
+                        <li><b>Ghi chú:</b> ${safe(ceremony.offeringsInfo)}</li>
+                    </ul>
+                </body>
+                </html>`;
+
+                // TẠO BLOB VÀ TẢI
+                const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
+                
+                // Sử dụng FileSaver.js (Đã import ở trên)
+                if (typeof saveAs !== 'undefined') {
+                    saveAs(blob, `PhieuDangKy_${safe(ceremony.groom?.fullName).replace(/\s+/g, '')}.doc`);
+                } else {
+                    // Fallback nếu FileSaver lỗi
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `PhieuDangKy.doc`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Lỗi tải file: " + err.message);
+            }
+        }
+    </script>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- CẤU HÌNH HỆ THỐNG ---
-        const ADMIN_PASSWORD = "Dongthinh@419/11"; 
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqgMOXQ_fhLz7vGGxPjrzobjwpqiJI5hxlp-NenQPk-UcLaqu0HZ6dmz-8iTYih2Sw/exec"; 
+        // CẤU HÌNH (Sử dụng biến global đã khai báo ở trên)
+        const ADMIN_PASSWORD = "Q"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxJAdvJoKt034L3KVkMZVJs1o5WrqE8avyxk_JwqkspFoASLc5U2AU2Cn0MiZLvIIb/exec"; 
         
-        const TEMPLE_NAME = "Chùa Bửu Đà";
-        const TEMPLE_ADDRESS = "419/11 Cách Mạng Tháng 8, P.Hoà Hưng, Q.10, Tp.HCM";
-        const TEMPLE_PHONES = "0918.205.180 - 0703.676.073";
-        const TEMPLE_EMAIL = "buudapagoda@gmail.com";
+        const TEMPLE_ZALO = "0703.676.073";
+        const ZALO_LINK = "https://zalo.me/0703676073";
 
         // --- ICONS ---
         const Icons = {
             Plus: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>,
-            ListFilter: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>,
             Phone: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.03 12.03 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
             ArrowLeft: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>,
-            Calendar: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>,
             Trash2: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>,
             Pencil: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>,
             Users: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-            Utensils: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>,
-            Flower: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 1 1 4.5 4.5 4.5 4.5 0 1 1-4.5 4.5"/><path d="M12 7.5V9"/><path d="M7.5 12H9"/><path d="M16.5 12H15"/><path d="M12 16.5V15"/><path d="M8 8l.7.7"/><path d="M16 8l-.7.7"/><path d="M16 16l-.7-.7"/><path d="M8 16l.7-.7"/></svg>,
-            Camera: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>,
-            Sparkles: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></svg>,
+            Calendar: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>,
             Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
             Refresh: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>,
-            Lock: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
             CheckCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="green" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
-            AlertCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
+            Lock: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
             Eye: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
         };
 
-        const generateCeremonyScript = async (ceremony) => {
-            return new Promise((resolve) => resolve(`CHƯƠNG TRÌNH LỄ HẰNG THUẬN\nTại: ${TEMPLE_NAME}\n... (Kịch bản chi tiết giả lập) ...`));
-        };
-
-        // --- HÀM TẠO FILE WORD ---
-        const createWordBlob = (ceremony) => {
-            const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' }) : '---';
-            const getMediaText = () => ceremony.mediaOption === 'temple' ? 'Nhờ Chùa hỗ trợ' : 'Gia đình tự thuê thợ riêng';
-            
-            const htmlContent = `
-                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-                <head>
-                    <meta charset="utf-8">
-                    <title>Đăng Ký Lễ Hằng Thuận</title>
-                    <style>
-                        body { font-family: 'Times New Roman', serif; font-size: 12pt; }
-                        h1, h2 { text-align: center; font-weight: bold; text-transform: uppercase; margin: 5px 0; }
-                        .section-title { font-weight: bold; border-bottom: 1px solid black; margin: 20px 0 10px 0; text-transform: uppercase; font-size: 11pt; }
-                        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-                        td { padding: 4px; vertical-align: top; }
-                        .label { font-weight: bold; width: 160px; }
-                        .sub-info { font-style: italic; font-size: 10pt; text-align: center; }
-                        .contact-box { border: 1px solid #000; padding: 10px; margin-top: 10px; text-align: center; font-weight: bold; }
-                        .email-guide { text-align: center; color: red; font-style: italic; font-weight: bold; margin-bottom: 20px; border: 1px dashed red; padding: 5px; }
-                    </style>
-                </head>
-                <body>
-                    <p style="text-align: center; font-weight: bold; color: #555; margin: 0;">GIÁO HỘI PHẬT GIÁO VIỆT NAM - TP.HCM</p>
-                    <h1>Chùa Bửu Đà</h1>
-                    <p class="sub-info">419/11 Cách Mạng Tháng 8, P.Hoà Hưng, Q.10, Tp.HCM</p>
-                    <p class="sub-info">Điện thoại: 0918.205.180 - 0703.676.073</p>
-                    <hr width="50%" />
-                    <div class="email-guide">Quý gia đình vui lòng gửi file này về email: buudapagoda@gmail.com</div>
-                    <h2>PHIẾU ĐĂNG KÝ LỄ HẰNG THUẬN</h2>
-                    <p style="text-align: center;">Mã hồ sơ: <b>#${ceremony.id.slice(-6)}</b></p>
-                    <div class="contact-box">NGƯỜI LIÊN HỆ / ĐẠI DIỆN: ${ceremony.contactPhone}</div>
-                    <div class="section-title">I. THỜI GIAN & ĐỊA ĐIỂM</div>
-                    <table border="1" style="border: 1px solid #ccc;">
-                        <tr><td class="label">Ngày dương lịch:</td><td><b>${formatDate(ceremony.date)}</b></td><td class="label">Ngày âm lịch:</td><td>${ceremony.lunarDate}</td></tr>
-                        <tr><td class="label">Giờ làm lễ:</td><td><b>${ceremony.time}</b></td><td class="label">Số lượng khách:</td><td>${ceremony.guestCount} người</td></tr>
-                    </table>
-                    <div class="section-title">II. THÔNG TIN HAI HỌ</div>
-                    <table border="1" style="border: 1px solid #ccc;">
-                        <tr style="background-color: #f0f0f0;"><td colspan="2" style="text-align:center;"><b>NHÀ TRAI</b></td><td colspan="2" style="text-align:center;"><b>NHÀ GÁI</b></td></tr>
-                        <tr><td class="label">Tân Lang:</td><td><b>${ceremony.groom.fullName}</b></td><td class="label">Tân Nương:</td><td><b>${ceremony.bride.fullName}</b></td></tr>
-                        <tr><td class="label">Pháp danh:</td><td>${ceremony.groom.dharmaName}</td><td class="label">Pháp danh:</td><td>${ceremony.bride.dharmaName}</td></tr>
-                        <tr><td class="label">SĐT Cá nhân:</td><td>${ceremony.groom.phone}</td><td class="label">SĐT Cá nhân:</td><td>${ceremony.bride.phone}</td></tr>
-                        <tr><td class="label">Cha:</td><td>${ceremony.groom.fatherName}</td><td class="label">Cha:</td><td>${ceremony.bride.fatherName}</td></tr>
-                        <tr><td class="label">Mẹ:</td><td>${ceremony.groom.motherName}</td><td class="label">Mẹ:</td><td>${ceremony.bride.motherName}</td></tr>
-                        <tr><td class="label">Địa chỉ:</td><td>${ceremony.groom.address}</td><td class="label">Địa chỉ:</td><td>${ceremony.bride.address}</td></tr>
-                    </table>
-                    <div class="section-title">III. YÊU CẦU KHÁC</div>
-                    <ul>
-                        <li><b>Tiệc chay:</b> ${ceremony.hasBanquet ? `Có (${ceremony.banquetTables} bàn - 10 người/bàn)` : 'Không'}</li>
-                        <li><b>Trang trí hoa:</b> ${ceremony.flowerPreferences || 'Theo sự sắp xếp của Chùa'}</li>
-                        <li><b>Media/Quay chụp:</b> ${getMediaText()}</li>
-                        <li><b>Ghi chú/Sính lễ:</b> ${ceremony.offeringsInfo || 'Không có'}</li>
-                    </ul>
-                </body>
-                </html>
-            `;
-            return new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
-        };
-
-        // --- COMPONENT: FORM ĐĂNG KÝ ---
+        // --- COMPONENT: FORM NHẬP LIỆU ---
         const RegistrationForm = ({ onSubmit, onCancel, initialData, isSaving, isAdminMode, bookedDates }) => {
-            const [formData, setFormData] = useState(initialData || {
+            const [formData, setFormData] = useState({
                 id: '', contactPhone: '',
-                groom: { fullName: '', dharmaName: '', birthYear: '', phone: '', fatherName: '', motherName: '', address: '' },
-                bride: { fullName: '', dharmaName: '', birthYear: '', phone: '', fatherName: '', motherName: '', address: '' },
-                date: new Date().toISOString().split('T')[0], time: '09:00', lunarDate: '',
+                groom: { fullName: '', dharmaName: '', phone: '', fatherName: '', motherName: '', address: '' },
+                bride: { fullName: '', dharmaName: '', phone: '', fatherName: '', motherName: '', address: '' },
+                date: new Date().toISOString().split('T')[0], 
+                time: '09:00', 
+                lunarDate: '',
                 guestCount: '0', banquetTables: '', hasBanquet: false, mediaOption: 'own', flowerPreferences: '',
                 ceremonyBoardContent: 'Lễ Hằng Thuận', offeringsInfo: '', notes: ''
             });
+
+            useEffect(() => {
+                if (initialData) {
+                    setFormData(prev => ({
+                        ...prev, ...initialData,
+                        groom: { ...prev.groom, ...(initialData.groom || {}) },
+                        bride: { ...prev.bride, ...(initialData.bride || {}) }
+                    }));
+                }
+            }, [initialData]);
 
             const [dateError, setDateError] = useState("");
             const [showBookedDates, setShowBookedDates] = useState(false);
@@ -176,29 +211,17 @@
             };
 
             const checkDateAvailability = (selectedDate) => {
-                if (!isAdminMode && bookedDates && bookedDates.includes(selectedDate)) {
-                    setDateError("⚠️ Ngày này Nhà Chùa đã có lịch đăng ký. Vui lòng chọn ngày khác.");
-                    return false;
+                if (bookedDates && bookedDates.includes(selectedDate)) {
+                    if (!isAdminMode) {
+                        setDateError("⚠️ Ngày này Nhà Chùa đã có lịch. Vui lòng chọn ngày khác.");
+                        return false;
+                    } 
                 }
                 setDateError("");
                 return true;
             };
 
-            useEffect(() => {
-                if(formData.date) {
-                    checkDateAvailability(formData.date);
-                }
-            }, [formData.date, bookedDates]);
-
-            useEffect(() => {
-                if (initialData) {
-                    setFormData(prev => ({
-                        ...prev,
-                        contactPhone: initialData.contactPhone || initialData.groom?.familyPhone || '',
-                        mediaOption: initialData.mediaOption || (initialData.hasMediaCrew ? 'own' : 'temple')
-                    }));
-                }
-            }, [initialData]);
+            useEffect(() => { if(formData.date) checkDateAvailability(formData.date); }, [formData.date, bookedDates]);
 
             const handleChange = (section, field, value) => {
                 if (section === 'root') setFormData(prev => ({ ...prev, [field]: value }));
@@ -207,7 +230,7 @@
 
             const handleSubmit = (e) => {
                 e.preventDefault();
-                if (!checkDateAvailability(formData.date)) {
+                if (!isAdminMode && !checkDateAvailability(formData.date)) {
                     alert("Ngày bạn chọn đã bị trùng lịch. Vui lòng kiểm tra lại!");
                     return;
                 }
@@ -216,101 +239,101 @@
             };
 
             return (
-                <div className="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto fade-in border border-stone-200 mb-10 relative">
+                <div className="bg-white rounded-xl shadow-xl p-6 md:p-8 max-w-4xl mx-auto fade-in border border-amber-100 relative mb-12">
                     {isSaving && (
                         <div className="absolute inset-0 bg-white/90 z-20 flex flex-col items-center justify-center rounded-xl">
                             <div className="loader mb-4"></div>
-                            <p className="text-amber-800 font-bold text-lg">Đang gửi hồ sơ về Chùa...</p>
-                            <p className="text-stone-500 text-sm mt-2">Vui lòng không tắt trình duyệt.</p>
+                            <p className="text-amber-800 font-bold text-lg">{isAdminMode ? "Đang lưu thay đổi..." : "Đang gửi hồ sơ..."}</p>
                         </div>
                     )}
                     
-                    <div className="flex justify-between items-center mb-6 border-b border-stone-100 pb-2">
-                        <h2 className="text-2xl font-serif font-bold text-amber-700">
-                            {initialData ? 'Cập Nhật Hồ Sơ' : 'Đăng Ký Lễ Hằng Thuận Mới'}
+                    <div className="flex justify-between items-center mb-6 border-b border-stone-100 pb-4">
+                        <h2 className="text-2xl font-title font-bold text-amber-800 uppercase">
+                            {initialData ? 'Cập Nhật Hồ Sơ' : 'Đăng Ký Lễ Hằng Thuận'}
                         </h2>
-                        {!isAdminMode && (
-                            <div className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                                Khách Đăng Ký
-                            </div>
-                        )}
+                        {!isAdminMode && <div className="hidden sm:block bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold uppercase">Phật Tử Đăng Ký</div>}
                     </div>
 
                     <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-6">
-                        <div className="bg-stone-50 p-4 rounded-lg border border-stone-100">
-                            <h3 className="font-bold text-stone-700 flex items-center gap-2 mb-3 text-lg"><Icons.Users /> Nhà Trai</h3>
+                        {/* NHÀ TRAI */}
+                        <div className="bg-stone-50 p-5 rounded-lg border border-stone-200">
+                            <h3 className="font-bold text-amber-700 flex items-center gap-2 mb-4 text-lg"><Icons.Users /> Nhà Trai</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div><label className="text-sm font-medium">Họ tên chú rể *</label><input required className="w-full p-2 border rounded" placeholder="VD: Nguyễn Văn A" value={formData.groom.fullName} onChange={e => handleChange('groom', 'fullName', e.target.value)} /></div>
-                                <div><label className="text-sm font-medium">Pháp danh</label><input className="w-full p-2 border rounded" placeholder="VD: Minh Kiến" value={formData.groom.dharmaName} onChange={e => handleChange('groom', 'dharmaName', e.target.value)} /></div>
-                                <div><label className="text-sm font-medium">Cha</label><input className="w-full p-2 border rounded" placeholder="Họ tên cha" value={formData.groom.fatherName} onChange={e => handleChange('groom', 'fatherName', e.target.value)} /></div>
-                                <div><label className="text-sm font-medium">Mẹ</label><input className="w-full p-2 border rounded" placeholder="Họ tên mẹ" value={formData.groom.motherName} onChange={e => handleChange('groom', 'motherName', e.target.value)} /></div>
-                                <div className="md:col-span-2"><label className="text-sm font-medium">SĐT Cá nhân</label><input className="w-full p-2 border rounded" placeholder="VD: 09xx.xxx.xxx" value={formData.groom.phone} onChange={e => handleChange('groom', 'phone', e.target.value)} /></div>
-                                <div className="md:col-span-2"><label className="text-sm font-medium">Địa chỉ</label><input className="w-full p-2 border rounded" placeholder="Số nhà, đường, phường, quận..." value={formData.groom.address} onChange={e => handleChange('groom', 'address', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Họ tên chú rể *</label><input required className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Nguyễn Văn A" value={formData.groom.fullName} onChange={e => handleChange('groom', 'fullName', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Pháp danh</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Minh Kiến" value={formData.groom.dharmaName} onChange={e => handleChange('groom', 'dharmaName', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Cha</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value={formData.groom.fatherName} onChange={e => handleChange('groom', 'fatherName', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Mẹ</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value={formData.groom.motherName} onChange={e => handleChange('groom', 'motherName', e.target.value)} /></div>
+                                <div className="md:col-span-2"><label className="text-sm font-medium">SĐT & Địa chỉ</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="09xx... - Số nhà, phường, quận..." value={formData.groom.address} onChange={e => handleChange('groom', 'address', e.target.value)} /></div>
                             </div>
                         </div>
-                        <div className="bg-stone-50 p-4 rounded-lg border border-stone-100">
-                            <h3 className="font-bold text-stone-700 flex items-center gap-2 mb-3 text-lg"><Icons.Users /> Nhà Gái</h3>
+
+                        {/* NHÀ GÁI */}
+                        <div className="bg-stone-50 p-5 rounded-lg border border-stone-200">
+                            <h3 className="font-bold text-amber-700 flex items-center gap-2 mb-4 text-lg"><Icons.Users /> Nhà Gái</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div><label className="text-sm font-medium">Họ tên cô dâu *</label><input required className="w-full p-2 border rounded" placeholder="VD: Lê Thị B" value={formData.bride.fullName} onChange={e => handleChange('bride', 'fullName', e.target.value)} /></div>
-                                <div><label className="text-sm font-medium">Pháp danh</label><input className="w-full p-2 border rounded" placeholder="VD: Diệu Âm" value={formData.bride.dharmaName} onChange={e => handleChange('bride', 'dharmaName', e.target.value)} /></div>
-                                <div><label className="text-sm font-medium">Cha</label><input className="w-full p-2 border rounded" placeholder="Họ tên cha" value={formData.bride.fatherName} onChange={e => handleChange('bride', 'fatherName', e.target.value)} /></div>
-                                <div><label className="text-sm font-medium">Mẹ</label><input className="w-full p-2 border rounded" placeholder="Họ tên mẹ" value={formData.bride.motherName} onChange={e => handleChange('bride', 'motherName', e.target.value)} /></div>
-                                <div className="md:col-span-2"><label className="text-sm font-medium">SĐT Cá nhân</label><input className="w-full p-2 border rounded" placeholder="VD: 09xx.xxx.xxx" value={formData.bride.phone} onChange={e => handleChange('bride', 'phone', e.target.value)} /></div>
-                                <div className="md:col-span-2"><label className="text-sm font-medium">Địa chỉ</label><input className="w-full p-2 border rounded" placeholder="Số nhà, đường, phường, quận..." value={formData.bride.address} onChange={e => handleChange('bride', 'address', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Họ tên cô dâu *</label><input required className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Lê Thị B" value={formData.bride.fullName} onChange={e => handleChange('bride', 'fullName', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Pháp danh</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Diệu Âm" value={formData.bride.dharmaName} onChange={e => handleChange('bride', 'dharmaName', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Cha</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value={formData.bride.fatherName} onChange={e => handleChange('bride', 'fatherName', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Mẹ</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value={formData.bride.motherName} onChange={e => handleChange('bride', 'motherName', e.target.value)} /></div>
+                                <div className="md:col-span-2"><label className="text-sm font-medium">SĐT & Địa chỉ</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="09xx... - Số nhà, phường, quận..." value={formData.bride.address} onChange={e => handleChange('bride', 'address', e.target.value)} /></div>
                             </div>
                         </div>
-                        <div className="border-t border-stone-200 pt-4">
-                            <h3 className="font-bold text-stone-700 mb-4 flex items-center gap-2 text-lg"><Icons.Calendar /> Chi tiết & Liên hệ</h3>
-                            <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg mb-4">
-                                <label className="block text-sm font-bold text-amber-800 mb-1">Số điện thoại liên hệ chính (Đại diện) *</label>
-                                <input required type="text" className="w-full p-2 border border-amber-300 rounded" placeholder="VD: 0903.xxx.xxx (Cô Ba - Mẹ chú rể)" value={formData.contactPhone} onChange={e => handleChange('root', 'contactPhone', e.target.value)} />
+
+                        {/* THÔNG TIN CHUNG */}
+                        <div className="border-t border-stone-100 pt-6">
+                            <h3 className="font-bold text-amber-700 mb-4 flex items-center gap-2 text-lg"><Icons.Calendar /> Chi tiết Tổ chức</h3>
+                            
+                            <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg mb-6">
+                                <label className="block text-sm font-bold text-amber-900 mb-1">Số điện thoại liên hệ chính (Người đại diện) *</label>
+                                <input required type="text" className="w-full p-2 border border-amber-300 rounded focus:ring-2 focus:ring-amber-500 outline-none bg-white" placeholder="VD: 0903.xxx.xxx (Cô Ba - Mẹ chú rể)" value={formData.contactPhone} onChange={e => handleChange('root', 'contactPhone', e.target.value)} />
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                                 <div className="md:col-span-3">
                                     <div className="flex justify-between items-center mb-1">
-                                        <label className="text-sm font-medium flex items-center gap-1">Ngày Dương Lịch tổ chức *</label>
-                                        {!isAdminMode && <button type="button" onClick={() => setShowBookedDates(!showBookedDates)} className="text-xs text-blue-600 hover:underline flex items-center gap-1"><Icons.Eye /> {showBookedDates ? 'Ẩn danh sách ngày kín' : 'Xem danh sách ngày đã kín lịch'}</button>}
+                                        <label className="text-sm font-medium">Ngày Dương Lịch *</label>
+                                        {!isAdminMode && <button type="button" onClick={() => setShowBookedDates(!showBookedDates)} className="text-xs text-blue-600 hover:underline flex items-center gap-1"><Icons.Eye /> {showBookedDates ? 'Ẩn ngày bận' : 'Xem ngày Chùa bận'}</button>}
                                     </div>
                                     
                                     {showBookedDates && bookedDates && bookedDates.length > 0 && (
                                         <div className="mb-2 p-2 bg-red-50 border border-red-100 rounded text-xs text-red-700">
-                                            <b>Các ngày Chùa đã có lịch (Vui lòng tránh):</b><br/>
-                                            {bookedDates.map(d => new Date(d).toLocaleDateString('vi-VN')).join(', ')}
+                                            <b>Ngày đã có lịch:</b> {bookedDates.map(d => new Date(d).toLocaleDateString('vi-VN')).join(', ')}
                                         </div>
                                     )}
 
-                                    <input required type="date" className={`w-full p-2 border rounded ${dateError ? 'border-red-500 bg-red-50' : ''}`} value={formData.date} onChange={e => handleChange('root', 'date', e.target.value)} />
-                                    {dateError && <p className="text-red-500 text-sm mt-1 font-bold">{dateError}</p>}
+                                    <input required type="date" className={`w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none ${dateError ? 'border-red-500 bg-red-50' : ''}`} value={formData.date} onChange={e => handleChange('root', 'date', e.target.value)} />
+                                    {dateError && <p className="text-red-600 text-sm mt-1 font-bold">{dateError}</p>}
                                 </div>
 
-                                <div><label className="text-sm font-medium">Ngày Âm</label><input className="w-full p-2 border rounded" placeholder="VD: 16/11/Ất Tỵ" value={formData.lunarDate} onChange={e => handleChange('root', 'lunarDate', e.target.value)} /></div>
-                                <div><label className="text-sm font-medium">Giờ lễ</label><input required type="time" className="w-full p-2 border rounded" value={formData.time} onChange={e => handleChange('root', 'time', e.target.value)} /></div>
-                                <div><label className="text-sm font-medium">Số khách</label><input type="number" className="w-full p-2 border rounded" placeholder="Ước lượng..." value={formData.guestCount} onChange={e => handleChange('root', 'guestCount', e.target.value)} /></div>
-                                <div className="md:col-span-2"><label className="text-sm font-medium">Nội dung bảng lễ</label><input className="w-full p-2 border rounded" placeholder="VD: Lễ Hằng Thuận - Thành Hôn" value={formData.ceremonyBoardContent} onChange={e => handleChange('root', 'ceremonyBoardContent', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Ngày Âm lịch</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 16/11/Ất Tỵ" value={formData.lunarDate} onChange={e => handleChange('root', 'lunarDate', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Giờ làm lễ</label><input required type="time" className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value={formData.time} onChange={e => handleChange('root', 'time', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Số lượng khách</label><input type="number" className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Ước lượng..." value={formData.guestCount} onChange={e => handleChange('root', 'guestCount', e.target.value)} /></div>
                                 
                                 <div className="md:col-span-3 bg-stone-50 p-3 rounded border flex flex-col sm:flex-row gap-4 items-center">
-                                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                                    <label className="flex items-center gap-2 cursor-pointer select-none min-w-[150px]">
                                         <input type="checkbox" className="w-5 h-5 text-amber-600 rounded" checked={formData.hasBanquet} onChange={e => handleChange('root', 'hasBanquet', e.target.checked)} />
                                         <span className="font-bold">Có đặt tiệc chay</span>
                                     </label>
-                                    {formData.hasBanquet && <input type="text" placeholder="Số bàn (10 người/bàn)..." className="flex-1 w-full p-2 border rounded" value={formData.banquetTables} onChange={e => handleChange('root', 'banquetTables', e.target.value)} />}
+                                    {formData.hasBanquet && <input type="text" placeholder="Số bàn (10 người/bàn)..." className="flex-1 w-full p-2 border rounded bg-white" value={formData.banquetTables} onChange={e => handleChange('root', 'banquetTables', e.target.value)} />}
                                 </div>
+
                                 <div className="md:col-span-3 bg-stone-50 p-3 rounded border">
-                                    <label className="block text-sm font-bold mb-2">Quay phim / Chụp hình</label>
-                                    <div className="flex gap-4">
-                                        <label className="flex items-center gap-2"><input type="radio" name="mediaOption" value="own" checked={formData.mediaOption === 'own'} onChange={e => handleChange('root', 'mediaOption', e.target.value)} /> Tự thuê</label>
-                                        <label className="flex items-center gap-2"><input type="radio" name="mediaOption" value="temple" checked={formData.mediaOption === 'temple'} onChange={e => handleChange('root', 'mediaOption', e.target.value)} /> Nhờ Chùa chụp <i className="text-xs text-stone-500">(Không quay phim)</i></label>
+                                    <label className="block text-sm font-bold mb-2">Dịch vụ Quay phim / Chụp hình</label>
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                        <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="mediaOption" value="own" checked={formData.mediaOption === 'own'} onChange={e => handleChange('root', 'mediaOption', e.target.value)} /> Gia đình tự thuê thợ</label>
+                                        <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="mediaOption" value="temple" checked={formData.mediaOption === 'temple'} onChange={e => handleChange('root', 'mediaOption', e.target.value)} /> Nhờ Chùa hỗ trợ chụp ảnh <i className="text-xs text-stone-500">(Không quay phim)</i></label>
                                     </div>
                                 </div>
-                                <div className="md:col-span-3"><label className="text-sm font-medium">Trang trí hoa</label><input type="text" className="w-full p-2 border rounded" placeholder="VD: Tông màu vàng, hoa cúc, phong cách đơn giản..." value={formData.flowerPreferences} onChange={e => handleChange('root', 'flowerPreferences', e.target.value)} /></div>
+
+                                <div className="md:col-span-3"><label className="text-sm font-medium">Yêu cầu trang trí hoa</label><input type="text" className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: Tông màu chủ đạo, loại hoa mong muốn..." value={formData.flowerPreferences} onChange={e => handleChange('root', 'flowerPreferences', e.target.value)} /></div>
+                                <div className="md:col-span-3"><label className="text-sm font-medium">Ghi chú thêm cho Chùa</label><textarea className="w-full p-2 border rounded h-20 focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Gia đình cần Chùa chú ý thêm phần gì xin ghi rõ..." value={formData.offeringsInfo} onChange={e => handleChange('root', 'offeringsInfo', e.target.value)}></textarea></div>
                             </div>
-                            <div className="mt-4"><label className="text-sm font-medium">Ghi chú</label><textarea className="w-full p-2 border rounded h-20" placeholder="Gia đình cần Chùa chú ý thêm phần gì xin ghi rõ (VD: Sính lễ, giờ giấc đặc biệt...)" value={formData.offeringsInfo} onChange={e => handleChange('root', 'offeringsInfo', e.target.value)}></textarea></div>
                         </div>
                         
-                        <div className="flex justify-end gap-3 pt-4 border-t">
-                            {isAdminMode && <button type="button" onClick={onCancel} className="px-5 py-2 border rounded hover:bg-stone-100">Hủy</button>}
-                            <button type="submit" disabled={isSaving || dateError} className={`px-6 py-3 text-white rounded-lg shadow font-bold text-lg w-full sm:w-auto ${dateError || isSaving ? 'bg-stone-400 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'}`}>
-                                {isSaving ? 'Đang gửi...' : 'GỬI HỒ SƠ ĐĂNG KÝ'}
+                        <div className="flex justify-end gap-3 pt-6 border-t border-stone-100">
+                            {isAdminMode && <button type="button" onClick={onCancel} className="px-5 py-3 border rounded-lg hover:bg-stone-100 font-medium">Hủy bỏ</button>}
+                            <button type="submit" disabled={isSaving || dateError} className={`px-8 py-3 text-white rounded-lg shadow-lg font-bold text-lg w-full sm:w-auto transition transform active:scale-95 ${dateError || isSaving ? 'bg-stone-400 cursor-not-allowed' : 'bg-amber-700 hover:bg-amber-800'}`}>
+                                {isSaving ? 'ĐANG XỬ LÝ...' : (isAdminMode ? 'LƯU CẬP NHẬT' : 'GỬI ĐĂNG KÝ')}
                             </button>
                         </div>
                     </form>
@@ -318,234 +341,315 @@
             );
         };
 
-        // --- NEW COMPONENT: MÀN HÌNH KHÁCH THÀNH CÔNG ---
+        // --- COMPONENT: MÀN HÌNH THÀNH CÔNG CHO KHÁCH ---
         const GuestSuccessView = ({ ceremony, onReset }) => {
-            const handleDownload = () => {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(createWordBlob(ceremony));
-                link.download = `PhieuDangKy_${ceremony.groom.fullName}.doc`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            };
-
             return (
-                <div className="max-w-2xl mx-auto text-center pt-10 fade-in px-4">
-                    <div className="mb-6 flex justify-center">
+                <div className="max-w-xl mx-auto text-center pt-8 fade-in px-4 mb-20">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6 text-green-600 shadow-sm">
                         <Icons.CheckCircle />
                     </div>
-                    <h2 className="text-3xl font-serif font-bold text-green-700 mb-4">Đăng Ký Thành Công!</h2>
-                    <p className="text-stone-600 mb-8">
-                        Mô Phật, Nhà Chùa đã nhận được thông tin đăng ký của gia đình.<br/>
-                        Quý vị vui lòng tải phiếu đăng ký bên dưới để lưu trữ và đối chiếu.
-                    </p>
+                    <h2 className="text-3xl font-title font-bold text-green-800 mb-2 uppercase">Đăng Ký Thành Công!</h2>
+                    <p className="text-stone-600 mb-8">Nam Mô A Di Đà Phật. Nhà Chùa đã nhận được thông tin sơ bộ.</p>
                     
-                    <div className="bg-white p-6 rounded-xl shadow-lg border border-stone-200 mb-8">
-                        <h3 className="font-bold text-lg mb-2">{ceremony.groom.fullName} & {ceremony.bride.fullName}</h3>
-                        <p className="text-sm text-stone-500 mb-4">Mã hồ sơ: #{ceremony.id.slice(-6)}</p>
+                    <div className="bg-white p-6 rounded-xl shadow-lg border border-stone-200 text-left relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 to-amber-600"></div>
+                        <h3 className="font-bold text-lg text-center text-amber-900 border-b pb-2 mb-4">
+                            {ceremony.groom.fullName} &hearts; {ceremony.bride.fullName}
+                        </h3>
                         
-                        <button onClick={handleDownload} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold shadow hover:bg-blue-700 flex items-center justify-center gap-2 transition-transform hover:scale-105">
-                            <Icons.Download /> 📥 Tải Phiếu Đăng Ký (Lưu về máy)
-                        </button>
-                        <p className="text-xs text-red-500 mt-2 italic">* Vui lòng gửi file này về email: {TEMPLE_EMAIL}</p>
+                        <div className="bg-blue-50 border border-blue-200 p-5 rounded-lg text-center">
+                            <p className="text-stone-800 font-bold mb-2">Bước xác nhận cuối cùng:</p>
+                            <p className="text-sm text-stone-600 mb-4">
+                                Để hoàn tất thủ tục và giữ ngày giờ chính thức, gia đình vui lòng nhắn tin xác nhận qua Zalo cho Thầy Thư ký.
+                            </p>
+                            <a href={ZALO_LINK} target="_blank" className="block w-full bg-blue-600 text-white py-3 rounded-lg font-bold text-lg shadow-md hover:bg-blue-700 transition-transform hover:scale-105 flex items-center justify-center gap-2">
+                                <span className="bg-white text-blue-600 rounded p-0.5"><Icons.Phone /></span> CHAT ZALO: {TEMPLE_ZALO}
+                            </a>
+                        </div>
                     </div>
 
-                    <button onClick={onReset} className="text-amber-700 hover:underline text-sm font-medium">
-                        &larr; Quay lại trang đăng ký mới
-                    </button>
+                    <div className="mt-8">
+                        <button onClick={onReset} className="text-stone-500 hover:text-amber-700 hover:underline text-sm font-medium">
+                            &larr; Quay lại trang chủ
+                        </button>
+                    </div>
                 </div>
             );
         };
 
+        // --- COMPONENT: CHI TIẾT ADMIN ---
         const CeremonyDetailView = ({ ceremony, onBack, onEdit, onDelete }) => {
-            const [script, setScript] = useState(ceremony.aiProgramScript || '');
-            const [loading, setLoading] = useState(false);
-            const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' }) : '---';
-            const handleGenerateScript = async () => { setLoading(true); const result = await generateCeremonyScript(ceremony); setScript(result); setLoading(false); };
-            const handleExportWord = () => { const link = document.createElement('a'); link.href = URL.createObjectURL(createWordBlob(ceremony)); link.download = `DangKy_${ceremony.groom.fullName}.doc`; document.body.appendChild(link); link.click(); document.body.removeChild(link); };
+            if (!ceremony) return null;
 
             return (
-                <div className="max-w-5xl mx-auto space-y-6 fade-in mb-10">
-                    <div className="flex justify-between items-center"><button onClick={onBack} className="flex gap-2 hover:text-amber-700"><Icons.ArrowLeft /> Quay lại</button><div className="flex gap-2"><button onClick={onDelete} className="bg-red-50 text-red-600 px-3 py-2 rounded"><Icons.Trash2 /> Xóa</button><button onClick={onEdit} className="bg-amber-50 text-amber-700 px-3 py-2 rounded"><Icons.Pencil /> Sửa</button><button onClick={handleExportWord} className="bg-blue-700 text-white px-4 py-2 rounded"><Icons.Download /> Tải Word</button></div></div>
-                    <div className="bg-white rounded-xl shadow p-6 border border-stone-200 mt-4">
-                        <div className="bg-amber-50 p-4 rounded mb-4 flex justify-between"><div><h2 className="text-xl font-bold">{ceremony.groom.fullName} & {ceremony.bride.fullName}</h2><p>{formatDate(ceremony.date)} - {ceremony.time}</p></div><div className="text-right"><p className="font-bold text-amber-700">LH: {ceremony.contactPhone}</p><span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Đã lưu</span></div></div>
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <div><h3 className="font-bold border-b mb-2">Nhà Trai</h3><p>Tên: {ceremony.groom.fullName}</p><p>SĐT: {ceremony.groom.phone}</p></div>
-                            <div><h3 className="font-bold border-b mb-2">Nhà Gái</h3><p>Tên: {ceremony.bride.fullName}</p><p>SĐT: {ceremony.bride.phone}</p></div>
-                        </div>
-                        <div className="mt-4 pt-4 border-t grid md:grid-cols-3 gap-4 text-sm">
-                            <p><b>Tiệc:</b> {ceremony.hasBanquet ? `${ceremony.banquetTables} bàn` : 'Không'}</p>
-                            <p><b>Hoa:</b> {ceremony.flowerPreferences || 'Theo chùa'}</p>
-                            <p><b>Media:</b> {ceremony.mediaOption === 'temple' ? 'Chùa chụp' : 'Tự thuê'}</p>
+                <div className="max-w-5xl mx-auto space-y-6 fade-in mb-20">
+                    <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-stone-100">
+                        <button onClick={onBack} className="flex items-center gap-2 text-stone-600 hover:text-amber-800 font-medium">
+                            <Icons.ArrowLeft /> Quay lại danh sách
+                        </button>
+                        <div className="flex gap-2">
+                            <button onClick={onDelete} className="flex items-center gap-1 bg-white border border-red-200 text-red-600 px-3 py-2 rounded hover:bg-red-50 text-sm font-bold">
+                                <Icons.Trash2 /> Xóa
+                            </button>
+                            <button onClick={onEdit} className="flex items-center gap-1 bg-amber-100 text-amber-800 px-4 py-2 rounded hover:bg-amber-200 font-bold shadow-sm">
+                                <Icons.Pencil /> Sửa hồ sơ
+                            </button>
+                            {/* Nút Gọi hàm toàn cục window.exportToWordGlobal */}
+                            <button onClick={() => window.exportToWordGlobal(ceremony)} className="flex items-center gap-1 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 font-bold shadow-sm transition active:scale-95">
+                                <Icons.Download /> Xuất file Word
+                            </button>
                         </div>
                     </div>
-                    <div className="bg-gradient-to-br from-amber-50 to-white rounded-2xl shadow-sm border border-amber-200 flex flex-col mt-4">
-                        <div className="p-4 border-b border-amber-100 flex justify-between items-center"><h3 className="font-bold text-amber-800 flex gap-2"><span className="text-amber-500"><Icons.Sparkles /></span> Trợ lý</h3>{!loading && !script && <button onClick={handleGenerateScript} className="text-xs bg-amber-600 text-white px-3 py-1 rounded hover:bg-amber-700">Tạo kịch bản</button>}</div>
-                        <div className="flex-1 p-4 overflow-y-auto max-h-[500px] text-sm text-stone-700">{loading ? <p className="text-center">Đang tải...</p> : script ? <div className="whitespace-pre-wrap">{script}</div> : <p className="text-center text-stone-400">Chưa có kịch bản</p>}</div>
+
+                    <div className="bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden">
+                        <div className="bg-amber-50 p-6 border-b border-amber-100 flex flex-col md:flex-row justify-between md:items-center gap-4">
+                            <div>
+                                <h2 className="text-2xl font-title font-bold text-amber-900 mb-1 uppercase">{ceremony.groom?.fullName} & {ceremony.bride?.fullName}</h2>
+                                <p className="text-stone-600 font-medium flex items-center gap-2">
+                                    <Icons.Calendar /> {new Date(ceremony.date).toLocaleDateString('vi-VN')} - {ceremony.time}
+                                </p>
+                            </div>
+                            <div className="text-right">
+                                <div className="inline-block bg-white px-4 py-2 rounded border border-stone-200 shadow-sm">
+                                    <p className="text-xs text-stone-400 uppercase tracking-wide">Người liên hệ</p>
+                                    <p className="font-bold text-lg text-amber-700">{ceremony.contactPhone}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-6 grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 className="font-bold text-stone-800 border-b-2 border-amber-200 pb-2 mb-3 uppercase text-sm">Thông tin Nhà Trai</h3>
+                                <p><b>Họ tên:</b> {ceremony.groom?.fullName}</p>
+                                <p><b>Pháp danh:</b> {ceremony.groom?.dharmaName}</p>
+                                <p><b>SĐT:</b> {ceremony.groom?.phone}</p>
+                                <p><b>Cha:</b> {ceremony.groom?.fatherName}</p>
+                                <p><b>Mẹ:</b> {ceremony.groom?.motherName}</p>
+                                <p><b>Địa chỉ:</b> {ceremony.groom?.address}</p>
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-stone-800 border-b-2 border-amber-200 pb-2 mb-3 uppercase text-sm">Thông tin Nhà Gái</h3>
+                                <p><b>Họ tên:</b> {ceremony.bride?.fullName}</p>
+                                <p><b>Pháp danh:</b> {ceremony.bride?.dharmaName}</p>
+                                <p><b>SĐT:</b> {ceremony.bride?.phone}</p>
+                                <p><b>Cha:</b> {ceremony.bride?.fatherName}</p>
+                                <p><b>Mẹ:</b> {ceremony.bride?.motherName}</p>
+                                <p><b>Địa chỉ:</b> {ceremony.bride?.address}</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-stone-50 p-6 border-t border-stone-100">
+                            <h3 className="font-bold text-stone-800 mb-3 uppercase text-sm">Chi tiết dịch vụ</h3>
+                            <div className="grid md:grid-cols-3 gap-4 text-sm">
+                                <div className="bg-white p-3 rounded border">
+                                    <span className="block text-gray-500 text-xs">Tiệc chay</span>
+                                    <span className="font-medium">{ceremony.hasBanquet ? `Có (${ceremony.banquetTables} bàn)` : 'Không đặt'}</span>
+                                </div>
+                                <div className="bg-white p-3 rounded border">
+                                    <span className="block text-gray-500 text-xs">Media</span>
+                                    <span className="font-medium">{ceremony.mediaOption === 'temple' ? 'Chùa hỗ trợ chụp' : 'Gia đình tự thuê'}</span>
+                                </div>
+                                <div className="bg-white p-3 rounded border">
+                                    <span className="block text-gray-500 text-xs">Trang trí hoa</span>
+                                    <span className="font-medium">{ceremony.flowerPreferences || 'Mặc định'}</span>
+                                </div>
+                                <div className="bg-white p-3 rounded border">
+                                    <span className="block text-gray-500 text-xs">Ngày Âm Lịch</span>
+                                    <span className="font-medium">{ceremony.lunarDate || '---'}</span>
+                                </div>
+                                <div className="md:col-span-2 bg-white p-3 rounded border">
+                                    <span className="block text-gray-500 text-xs">Ghi chú từ gia đình</span>
+                                    <span className="font-medium italic">{ceremony.offeringsInfo || 'Không có ghi chú'}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             );
         };
 
+        // --- MAIN APP ---
         const App = () => {
-            // --- STATE QUẢN LÝ ---
             const [view, setView] = useState('public_form'); 
             const [isAdmin, setIsAdmin] = useState(false);
             const [ceremonies, setCeremonies] = useState([]);
-            const [bookedDates, setBookedDates] = useState([]); // Danh sách ngày đã kín
+            const [bookedDates, setBookedDates] = useState([]);
             const [selectedCeremony, setSelectedCeremony] = useState(null);
             const [guestSubmittedData, setGuestSubmittedData] = useState(null);
             const [isSyncing, setIsSyncing] = useState(false);
             const [isSaving, setIsSaving] = useState(false);
 
-            useEffect(() => {
-                const loadData = async () => {
-                    if (GOOGLE_SCRIPT_URL) {
-                        setIsSyncing(true);
-                        try {
-                            const res = await fetch(GOOGLE_SCRIPT_URL);
-                            const cloudData = await res.json();
-                            if (Array.isArray(cloudData)) {
-                                setCeremonies(cloudData);
-                                // Trích xuất ngày đã đặt
-                                const dates = cloudData.map(c => c.date).filter(d => d);
-                                setBookedDates(dates);
-                            }
-                        } catch (err) { console.error("Lỗi tải data", err); } finally { setIsSyncing(false); }
+            const loadData = async () => {
+                if (!GOOGLE_SCRIPT_URL) return;
+                setIsSyncing(true);
+                try {
+                    const res = await fetch(GOOGLE_SCRIPT_URL);
+                    const cloudData = await res.json();
+                    if (Array.isArray(cloudData)) {
+                        setCeremonies(cloudData);
+                        const dates = cloudData.map(c => c.date).filter(d => d);
+                        setBookedDates(dates);
                     }
-                };
-                // Luôn tải dữ liệu khi khởi động để lấy danh sách ngày kín (cho cả Khách và Admin)
-                loadData();
-            }, []);
+                } catch (err) { console.error("Lỗi tải data", err); } 
+                finally { setIsSyncing(false); }
+            };
+
+            useEffect(() => { loadData(); }, []);
 
             const handleLogin = () => {
                 const pwd = prompt("Nhập mật khẩu quản trị viên:");
                 if (pwd === ADMIN_PASSWORD) {
                     setIsAdmin(true);
                     setView('list');
+                    loadData(); 
                 } else if (pwd) {
                     alert("Mật khẩu không đúng!");
                 }
             };
 
             const handleCreate = async (data) => {
-                if (GOOGLE_SCRIPT_URL) {
-                    setIsSaving(true);
-                    try {
-                        await fetch(GOOGLE_SCRIPT_URL, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(data)
-                        });
-                        
-                        if (isAdmin) {
-                            alert("Đã thêm hồ sơ thành công!");
-                            setView('list');
-                            window.location.reload(); // Reload để cập nhật ngày kín
-                        } else {
-                            // KHÁCH: Chuyển sang màn hình thành công
-                            setGuestSubmittedData(data);
-                            setView('guest_success');
-                        }
-                    } catch (err) {
-                        alert("Lỗi kết nối! Vui lòng thử lại hoặc liên hệ trực tiếp.");
-                    } finally {
-                        setIsSaving(false);
+                setIsSaving(true);
+                try {
+                    const payload = { ...data, action: 'CREATE' };
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (isAdmin) {
+                        alert("Đã thêm hồ sơ thành công!");
+                        await loadData();
+                        setView('list');
+                    } else {
+                        setGuestSubmittedData(data);
+                        setView('guest_success');
                     }
-                } else {
-                    alert("Chưa cấu hình Google Script URL!");
+                } catch (err) {
+                    alert("Có lỗi kết nối. Vui lòng thử lại hoặc liên hệ trực tiếp.");
+                } finally {
+                    setIsSaving(false);
                 }
             };
 
-            const handleUpdate = (data) => {
-                alert("Chế độ sửa đang chỉ lưu tạm thời trên trình duyệt này.");
-                const updatedList = ceremonies.map(c => c.id === data.id ? data : c);
-                setCeremonies(updatedList); setSelectedCeremony(data); setView('detail');
+            const handleUpdate = async (data) => {
+                setIsSaving(true);
+                try {
+                    const payload = { ...data, action: 'UPDATE' };
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    setTimeout(async () => {
+                        alert("Đã lưu cập nhật lên hệ thống!");
+                        await loadData(); 
+                        setSelectedCeremony(data); 
+                        setView('detail');
+                        setIsSaving(false);
+                    }, 1500);
+                    
+                } catch (err) {
+                    alert("Lỗi khi cập nhật: " + err);
+                    setIsSaving(false);
+                }
             };
 
             const handleDelete = (id) => {
-                if (confirm("Xóa hồ sơ này?")) {
+                if (confirm("Xóa khỏi danh sách hiển thị?\n(Dữ liệu trên Sheet cần xóa thủ công)")) {
                     setCeremonies(ceremonies.filter(c => c.id !== id));
-                    setSelectedCeremony(null); setView('list');
+                    setSelectedCeremony(null); 
+                    setView('list');
                 }
             };
 
-            // --- GIAO DIỆN CHÍNH ---
             return (
-                <div className="min-h-screen flex flex-col font-sans bg-amber-50/50">
+                <div className="min-h-screen flex flex-col font-sans">
                     <nav className="bg-amber-800 text-amber-50 shadow-md sticky top-0 z-50">
                         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-amber-900 rounded-full flex items-center justify-center border-2 border-amber-600"><span className="font-serif font-bold text-xl">B</span></div>
-                                <h1 className="font-bold text-lg">{TEMPLE_NAME}</h1>
+                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setView(isAdmin ? 'list' : 'public_form')}>
+                                <div className="w-10 h-10 bg-amber-900 rounded-full flex items-center justify-center border-2 border-amber-600 font-title font-bold text-xl">B</div>
+                                <h1 className="font-bold text-lg hidden sm:block font-title">{CONFIG_TEMPLE_NAME}</h1>
                             </div>
                             {isAdmin && (
-                                <button onClick={() => { setIsAdmin(false); setView('public_form'); }} className="text-xs bg-amber-900 px-3 py-1 rounded hover:bg-amber-700">Đăng xuất</button>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-xs bg-amber-900/50 px-2 py-1 rounded">Admin Mode</span>
+                                    <button onClick={() => { setIsAdmin(false); setView('public_form'); }} className="text-sm bg-stone-700 hover:bg-stone-600 px-3 py-1.5 rounded transition">Đăng xuất</button>
+                                </div>
                             )}
                         </div>
                     </nav>
 
                     <main className="flex-grow container mx-auto px-4 py-8">
-                        {/* 1. GIAO DIỆN KHÁCH: FORM NHẬP */}
                         {!isAdmin && view === 'public_form' && (
                             <div className="max-w-4xl mx-auto">
                                 <div className="text-center mb-8 fade-in">
-                                    <h2 className="text-3xl font-serif font-bold text-stone-800 mb-2">Đăng Ký Lễ Hằng Thuận</h2>
-                                    <p className="text-stone-600">Vui lòng điền đầy đủ thông tin bên dưới để gửi về Nhà Chùa.</p>
+                                    <h2 className="text-3xl font-title font-bold text-amber-900 mb-3 uppercase">Đăng Ký Lễ Hằng Thuận</h2>
+                                    <p className="text-stone-600">Kính mời quý Phật tử điền thông tin để đăng ký tổ chức lễ tại {CONFIG_TEMPLE_NAME}.</p>
                                 </div>
                                 <RegistrationForm onSubmit={handleCreate} isSaving={isSaving} isAdminMode={false} bookedDates={bookedDates} />
                             </div>
                         )}
 
-                        {/* 2. GIAO DIỆN KHÁCH: THÀNH CÔNG */}
                         {!isAdmin && view === 'guest_success' && guestSubmittedData && (
-                            <GuestSuccessView 
-                                ceremony={guestSubmittedData} 
-                                onReset={() => { setGuestSubmittedData(null); setView('public_form'); window.location.reload(); }} 
-                            />
+                            <GuestSuccessView ceremony={guestSubmittedData} onReset={() => { setGuestSubmittedData(null); setView('public_form'); }} />
                         )}
 
-                        {/* 3. GIAO DIỆN ADMIN */}
                         {isAdmin && view === 'list' && (
-                            <div className="space-y-6 fade-in">
-                                <div className="flex justify-between items-center">
-                                    <h2 className="text-3xl font-serif font-bold text-stone-800">Danh Sách Quản Lý</h2>
+                            <div className="space-y-6 fade-in mb-20">
+                                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                                    <h2 className="text-2xl font-title font-bold text-stone-800 uppercase">Quản Lý Hồ Sơ</h2>
                                     <div className="flex gap-2">
-                                        <button onClick={() => window.location.reload()} className="bg-stone-100 text-stone-600 px-3 py-2 rounded hover:bg-stone-200"><Icons.Refresh /> Tải lại</button>
-                                        <button onClick={() => setView('form')} className="flex items-center gap-2 bg-amber-600 text-white px-5 py-2.5 rounded hover:bg-amber-700 shadow transition"><Icons.Plus /> Thêm Mới</button>
+                                        <button onClick={loadData} className="bg-white border border-stone-300 text-stone-600 px-4 py-2 rounded-lg hover:bg-stone-50 flex items-center gap-2 font-medium"><Icons.Refresh /> Làm mới</button>
+                                        <button onClick={() => setView('form')} className="bg-amber-700 text-white px-5 py-2 rounded-lg hover:bg-amber-800 shadow flex items-center gap-2 font-bold"><Icons.Plus /> Tạo hồ sơ mới</button>
                                     </div>
                                 </div>
-                                {isSyncing ? <div className="text-center py-10"><div className="loader mx-auto mb-2"></div><p>Đang tải dữ liệu...</p></div> : 
-                                ceremonies.length === 0 ? <div className="text-center py-10 bg-white rounded border"><p>Chưa có dữ liệu.</p></div> : 
+                                
+                                {isSyncing ? (
+                                    <div className="text-center py-20">
+                                        <div className="loader mx-auto mb-4"></div>
+                                        <p className="text-stone-500">Đang đồng bộ dữ liệu...</p>
+                                    </div>
+                                ) : ceremonies.length === 0 ? (
+                                    <div className="text-center py-20 bg-white rounded-xl border border-dashed border-stone-300"><p className="text-stone-400">Chưa có hồ sơ nào.</p></div>
+                                ) : (
                                     <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                                         {ceremonies.map(ceremony => (
-                                            <div key={ceremony.id} onClick={() => { setSelectedCeremony(ceremony); setView('detail'); }} className="bg-white rounded-xl p-5 shadow hover:shadow-lg border cursor-pointer group">
-                                                <div className="flex justify-between mb-4"><div className="bg-amber-50 text-amber-800 rounded px-3 py-1 border text-center min-w-[60px]"><div className="text-xs font-bold uppercase">Tháng {new Date(ceremony.date).getMonth() + 1}</div><div className="text-2xl font-bold leading-none">{new Date(ceremony.date).getDate()}</div></div><span className="text-xs px-2 py-1 rounded bg-stone-100 text-stone-500">{ceremony.hasBanquet ? 'Có tiệc' : 'Lễ'}</span></div>
-                                                <h3 className="text-lg font-bold group-hover:text-amber-700 truncate">{ceremony.groom.fullName} & {ceremony.bride.fullName}</h3>
-                                                <p className="text-sm text-stone-500 mt-1">{ceremony.time} - LH: {ceremony.contactPhone}</p>
+                                            <div key={ceremony.id} onClick={() => { setSelectedCeremony(ceremony); setView('detail'); }} className="bg-white rounded-xl p-5 shadow-sm hover:shadow-xl border border-stone-100 cursor-pointer transition-all hover:-translate-y-1 group relative">
+                                                <div className="flex justify-between mb-4">
+                                                    <div className="bg-amber-50 text-amber-800 rounded-lg px-3 py-1 border border-amber-100 text-center min-w-[60px]">
+                                                        <div className="text-xs font-bold uppercase tracking-wider">Tháng {new Date(ceremony.date).getMonth() + 1}</div>
+                                                        <div className="text-2xl font-black leading-none">{new Date(ceremony.date).getDate()}</div>
+                                                    </div>
+                                                    <span className={`text-xs px-2 py-1 rounded-full h-fit font-bold ${ceremony.hasBanquet ? 'bg-orange-100 text-orange-700' : 'bg-stone-100 text-stone-500'}`}>{ceremony.hasBanquet ? 'Có tiệc' : 'Chỉ lễ'}</span>
+                                                </div>
+                                                <h3 className="text-lg font-bold text-stone-800 group-hover:text-amber-700 truncate font-title uppercase">{ceremony.groom.fullName} & {ceremony.bride.fullName}</h3>
+                                                <p className="text-sm text-stone-500 mt-2 flex items-center gap-2"><Icons.Phone /> {ceremony.contactPhone}</p>
                                             </div>
                                         ))}
                                     </div>
-                                }
+                                )}
                             </div>
                         )}
 
                         {isAdmin && view === 'form' && <RegistrationForm onSubmit={handleCreate} onCancel={() => setView('list')} isSaving={isSaving} isAdminMode={true} bookedDates={bookedDates} />}
-                        {isAdmin && view === 'edit' && selectedCeremony && <RegistrationForm initialData={selectedCeremony} onSubmit={handleUpdate} onCancel={() => setView('detail')} isAdminMode={true} bookedDates={bookedDates} />}
+                        {isAdmin && view === 'edit' && selectedCeremony && <RegistrationForm initialData={selectedCeremony} onSubmit={handleUpdate} onCancel={() => setView('detail')} isSaving={isSaving} isAdminMode={true} bookedDates={bookedDates} />}
                         {isAdmin && view === 'detail' && selectedCeremony && <CeremonyDetailView ceremony={selectedCeremony} onBack={() => setView('list')} onEdit={() => setView('edit')} onDelete={() => handleDelete(selectedCeremony.id)} />}
                     </main>
 
-                    <footer className="bg-stone-800 text-stone-400 py-6 text-center text-sm relative">
-                        <p className="font-serif text-lg mb-2">{TEMPLE_NAME}</p>
-                        <p>{TEMPLE_ADDRESS}</p>
-                        
-                        {/* Nút đăng nhập Admin ẩn ở góc dưới */}
-                        {!isAdmin && (
-                            <button onClick={handleLogin} className="absolute bottom-4 right-4 text-stone-600 hover:text-stone-300 flex items-center gap-1 opacity-50 hover:opacity-100 transition">
-                                <Icons.Lock /> <span className="text-xs">Quản trị</span>
-                            </button>
-                        )}
+                    <footer className="bg-stone-900 text-stone-400 py-8 text-center text-sm mt-auto border-t border-stone-800">
+                        <div className="container mx-auto px-4">
+                            <p className="font-title text-lg text-stone-300 mb-2">{CONFIG_TEMPLE_NAME}</p>
+                            <p className="mb-4">{CONFIG_TEMPLE_ADDRESS}</p>
+                            {!isAdmin && (
+                                <button onClick={handleLogin} className="inline-flex items-center gap-2 text-stone-600 hover:text-stone-300 transition px-4 py-2 rounded hover:bg-stone-800">
+                                    <Icons.Lock /> <span>Quản trị viên</span>
+                                </button>
+                            )}
+                        </div>
                     </footer>
                 </div>
             );
@@ -553,5 +657,4 @@
         const root = ReactDOM.createRoot(document.getElementById('root')); root.render(<App />);
     </script>
 </body>
-
 </html>
