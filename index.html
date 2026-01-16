@@ -45,9 +45,25 @@
 
                 // Hàm hỗ trợ (Helper)
                 const safe = (txt) => txt ? txt : '...';
-                const dateStr = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : '...';
+                // Xử lý ngày tháng: chuyển về dạng DD/MM/YYYY
+                const dateStr = (d) => {
+                    if (!d) return '...';
+                    const dateObj = new Date(d);
+                    return !isNaN(dateObj) ? dateObj.toLocaleDateString('vi-VN') : d;
+                };
+                
+                // Xử lý giờ: Đảm bảo hiển thị dạng HH:mm
+                const timeStr = (t) => {
+                    if (!t) return '...';
+                    // Nếu giờ có dính ngày tháng (do Google Sheet), cắt lấy giờ
+                    if (t.includes('T')) {
+                        const dateObj = new Date(t);
+                        return !isNaN(dateObj) ? dateObj.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : t;
+                    }
+                    return t;
+                };
 
-                // Nội dung HTML cho file Word
+                // Nội dung HTML cho file Word (Đã chỉnh CSS kẻ bảng)
                 const content = `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                 <head>
@@ -55,8 +71,25 @@
                     <title>PhieuDangKy</title>
                     <style>
                         body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.4; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                        td { padding: 5px; vertical-align: top; }
+                        
+                        /* CSS CHO BẢNG KẺ Ô */
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin-top: 10px; 
+                            margin-bottom: 10px;
+                        }
+                        td, th { 
+                            border: 1px solid #000; /* Kẻ viền đen cho ô */
+                            padding: 6px; 
+                            vertical-align: top; 
+                        }
+                        .header-row td {
+                            background-color: #f0f0f0; 
+                            text-align: center;
+                            font-weight: bold;
+                        }
+
                         .title { text-align: center; font-weight: bold; text-transform: uppercase; margin: 0; color: #B45309; }
                         .section { font-weight: bold; border-bottom: 1px solid #000; margin-top: 20px; padding-bottom: 3px; text-transform: uppercase; }
                     </style>
@@ -75,40 +108,46 @@
                     </div>
                     
                     <div class="section">I. THỜI GIAN & ĐỊA ĐIỂM</div>
-                    <table border="1" bordercolor="#ccc">
+                    <table>
                         <tr>
                             <td width="150"><b>Ngày Dương:</b></td><td>${dateStr(ceremony.date)}</td>
                             <td width="120"><b>Ngày Âm:</b></td><td>${safe(ceremony.lunarDate)}</td>
                         </tr>
                         <tr>
-                            <td><b>Giờ làm lễ:</b></td><td>${safe(ceremony.time)}</td>
+                            <td><b>Giờ làm lễ:</b></td><td>${timeStr(ceremony.time)}</td>
                             <td><b>Số khách:</b></td><td>${safe(ceremony.guestCount)} người</td>
                         </tr>
                     </table>
 
                     <div class="section">II. THÔNG TIN HAI HỌ</div>
-                    <table border="1" bordercolor="#ccc">
-                        <tr style="background-color: #eee;">
-                            <td style="text-align: center; width: 50%;"><b>NHÀ TRAI</b></td>
-                            <td style="text-align: center; width: 50%;"><b>NHÀ GÁI</b></td>
+                    <table>
+                        <tr class="header-row">
+                            <td colspan="2">NHÀ TRAI</td>
+                            <td colspan="2">NHÀ GÁI</td>
                         </tr>
                         <tr>
-                            <td>
-                                Họ tên: <b>${safe(ceremony.groom?.fullName)}</b><br/>
-                                Pháp danh: ${safe(ceremony.groom?.dharmaName)}<br/>
-                                Cha: ${safe(ceremony.groom?.fatherName)}<br/>
-                                Mẹ: ${safe(ceremony.groom?.motherName)}<br/>
-                                SĐT: ${safe(ceremony.groom?.phone)}<br/>
-                                Đ/c: ${safe(ceremony.groom?.address)}
-                            </td>
-                            <td>
-                                Họ tên: <b>${safe(ceremony.bride?.fullName)}</b><br/>
-                                Pháp danh: ${safe(ceremony.bride?.dharmaName)}<br/>
-                                Cha: ${safe(ceremony.bride?.fatherName)}<br/>
-                                Mẹ: ${safe(ceremony.bride?.motherName)}<br/>
-                                SĐT: ${safe(ceremony.bride?.phone)}<br/>
-                                Đ/c: ${safe(ceremony.bride?.address)}
-                            </td>
+                            <td width="100"><b>Tên:</b></td><td><b>${safe(ceremony.groom?.fullName)}</b></td>
+                            <td width="100"><b>Tên:</b></td><td><b>${safe(ceremony.bride?.fullName)}</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>Pháp danh:</b></td><td>${safe(ceremony.groom?.dharmaName)}</td>
+                            <td><b>Pháp danh:</b></td><td>${safe(ceremony.bride?.dharmaName)}</td>
+                        </tr>
+                        <tr>
+                            <td><b>SĐT:</b></td><td>${safe(ceremony.groom?.phone)}</td>
+                            <td><b>SĐT:</b></td><td>${safe(ceremony.bride?.phone)}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Cha:</b></td><td>${safe(ceremony.groom?.fatherName)}</td>
+                            <td><b>Cha:</b></td><td>${safe(ceremony.bride?.fatherName)}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Mẹ:</b></td><td>${safe(ceremony.groom?.motherName)}</td>
+                            <td><b>Mẹ:</b></td><td>${safe(ceremony.bride?.motherName)}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Địa chỉ:</b></td><td>${safe(ceremony.groom?.address)}</td>
+                            <td><b>Địa chỉ:</b></td><td>${safe(ceremony.bride?.address)}</td>
                         </tr>
                     </table>
 
@@ -125,11 +164,9 @@
                 // TẠO BLOB VÀ TẢI
                 const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
                 
-                // Sử dụng FileSaver.js (Đã import ở trên)
                 if (typeof saveAs !== 'undefined') {
                     saveAs(blob, `PhieuDangKy_${safe(ceremony.groom?.fullName).replace(/\s+/g, '')}.doc`);
                 } else {
-                    // Fallback nếu FileSaver lỗi
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
@@ -149,7 +186,7 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // CẤU HÌNH (Sử dụng biến global đã khai báo ở trên)
+        // CẤU HÌNH
         const ADMIN_PASSWORD = "Q"; 
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxJAdvJoKt034L3KVkMZVJs1o5WrqE8avyxk_JwqkspFoASLc5U2AU2Cn0MiZLvIIb/exec"; 
         
