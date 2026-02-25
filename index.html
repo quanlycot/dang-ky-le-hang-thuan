@@ -130,6 +130,10 @@
                             <td width="100"><b>Tên:</b></td><td><b>${safe(ceremony.bride?.fullName)}</b></td>
                         </tr>
                         <tr>
+                            <td><b>Ngày sinh:</b></td><td>${safe(ceremony.groom?.birthDate)}</td>
+                            <td><b>Ngày sinh:</b></td><td>${safe(ceremony.bride?.birthDate)}</td>
+                        </tr>
+                        <tr>
                             <td><b>Pháp danh:</b></td><td>${safe(ceremony.groom?.dharmaName)}</td>
                             <td><b>Pháp danh:</b></td><td>${safe(ceremony.bride?.dharmaName)}</td>
                         </tr>
@@ -213,8 +217,8 @@
         const RegistrationForm = ({ onSubmit, onCancel, initialData, isSaving, isAdminMode, bookedDates }) => {
             const [formData, setFormData] = useState({
                 id: '', contactPhone: '',
-                groom: { fullName: '', dharmaName: '', phone: '', fatherName: '', motherName: '', address: '' },
-                bride: { fullName: '', dharmaName: '', phone: '', fatherName: '', motherName: '', address: '' },
+                groom: { fullName: '', dharmaName: '', birthDate: '', phone: '', fatherName: '', motherName: '', address: '' },
+                bride: { fullName: '', dharmaName: '', birthDate: '', phone: '', fatherName: '', motherName: '', address: '' },
                 date: new Date().toISOString().split('T')[0], 
                 time: '09:00', 
                 lunarDate: '',
@@ -298,9 +302,11 @@
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div><label className="text-sm font-medium">Họ tên chú rể *</label><input required className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Nguyễn Văn A" value={formData.groom.fullName} onChange={e => handleChange('groom', 'fullName', e.target.value)} /></div>
                                 <div><label className="text-sm font-medium">Pháp danh</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Minh Kiến" value={formData.groom.dharmaName} onChange={e => handleChange('groom', 'dharmaName', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Ngày/Năm sinh</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 15/08/1995" value={formData.groom.birthDate} onChange={e => handleChange('groom', 'birthDate', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Điện thoại</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="09xx..." value={formData.groom.phone} onChange={e => handleChange('groom', 'phone', e.target.value)} /></div>
                                 <div><label className="text-sm font-medium">Cha</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value={formData.groom.fatherName} onChange={e => handleChange('groom', 'fatherName', e.target.value)} /></div>
                                 <div><label className="text-sm font-medium">Mẹ</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value={formData.groom.motherName} onChange={e => handleChange('groom', 'motherName', e.target.value)} /></div>
-                                <div className="md:col-span-2"><label className="text-sm font-medium">SĐT & Địa chỉ</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="09xx... - Số nhà, phường, quận..." value={formData.groom.address} onChange={e => handleChange('groom', 'address', e.target.value)} /></div>
+                                <div className="md:col-span-2"><label className="text-sm font-medium">Địa chỉ</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Số nhà, phường, quận..." value={formData.groom.address} onChange={e => handleChange('groom', 'address', e.target.value)} /></div>
                             </div>
                         </div>
 
@@ -310,9 +316,11 @@
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div><label className="text-sm font-medium">Họ tên cô dâu *</label><input required className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Lê Thị B" value={formData.bride.fullName} onChange={e => handleChange('bride', 'fullName', e.target.value)} /></div>
                                 <div><label className="text-sm font-medium">Pháp danh</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Diệu Âm" value={formData.bride.dharmaName} onChange={e => handleChange('bride', 'dharmaName', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Ngày/Năm sinh</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 10/10/1998" value={formData.bride.birthDate} onChange={e => handleChange('bride', 'birthDate', e.target.value)} /></div>
+                                <div><label className="text-sm font-medium">Điện thoại</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="09xx..." value={formData.bride.phone} onChange={e => handleChange('bride', 'phone', e.target.value)} /></div>
                                 <div><label className="text-sm font-medium">Cha</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value={formData.bride.fatherName} onChange={e => handleChange('bride', 'fatherName', e.target.value)} /></div>
                                 <div><label className="text-sm font-medium">Mẹ</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value={formData.bride.motherName} onChange={e => handleChange('bride', 'motherName', e.target.value)} /></div>
-                                <div className="md:col-span-2"><label className="text-sm font-medium">SĐT & Địa chỉ</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="09xx... - Số nhà, phường, quận..." value={formData.bride.address} onChange={e => handleChange('bride', 'address', e.target.value)} /></div>
+                                <div className="md:col-span-2"><label className="text-sm font-medium">Địa chỉ</label><input className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Số nhà, phường, quận..." value={formData.bride.address} onChange={e => handleChange('bride', 'address', e.target.value)} /></div>
                             </div>
                         </div>
 
@@ -458,6 +466,7 @@
                             <div>
                                 <h3 className="font-bold text-stone-800 border-b-2 border-amber-200 pb-2 mb-3 uppercase text-sm">Thông tin Nhà Trai</h3>
                                 <p><b>Họ tên:</b> {ceremony.groom?.fullName}</p>
+                                <p><b>Ngày sinh:</b> {ceremony.groom?.birthDate}</p>
                                 <p><b>Pháp danh:</b> {ceremony.groom?.dharmaName}</p>
                                 <p><b>SĐT:</b> {ceremony.groom?.phone}</p>
                                 <p><b>Cha:</b> {ceremony.groom?.fatherName}</p>
@@ -467,6 +476,7 @@
                             <div>
                                 <h3 className="font-bold text-stone-800 border-b-2 border-amber-200 pb-2 mb-3 uppercase text-sm">Thông tin Nhà Gái</h3>
                                 <p><b>Họ tên:</b> {ceremony.bride?.fullName}</p>
+                                <p><b>Ngày sinh:</b> {ceremony.bride?.birthDate}</p>
                                 <p><b>Pháp danh:</b> {ceremony.bride?.dharmaName}</p>
                                 <p><b>SĐT:</b> {ceremony.bride?.phone}</p>
                                 <p><b>Cha:</b> {ceremony.bride?.fatherName}</p>
