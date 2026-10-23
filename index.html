@@ -440,7 +440,7 @@
                                         <div class="md:col-span-3">
                                             <div class="flex justify-between items-center mb-1">
                                                 <label class="text-sm font-medium">Ngày Dương Lịch *</label>
-                                                ${!state.isAdmin ? `<button type="button" id="toggle-booked-dates" class="text-xs text-blue-600 hover:underline flex items-center gap-1">${Icons.Eye}${state.showBookedDates ? 'Ẩn ngày bận' : 'Xem ngày Chùa bận'}</button>` : ''}
+                                                ${!state.isAdmin ? `<button type="button" id="toggle-booked-dates" class="text-xs text-blue-600 hover:underline flex items-center gap-1">${Icons.Eye} ${state.showBookedDates ? 'Ẩn ngày bận' : 'Xem ngày Chùa bận'}</button>` : ''}
                                             </div>
                                             
                                             ${state.showBookedDates && state.bookedDates.length > 0 ? `
@@ -750,3 +750,34 @@
                     render();
                 });
                 document.getElementById('btn-export-word').addEventListener('click', () => exportToWordGlobal(ceremony));
+            }
+            
+            // 3. CHÂN TRANG (FOOTER)
+            const footer = document.createElement('footer');
+            footer.className = "bg-stone-900 text-stone-400 py-8 text-center text-sm mt-auto border-t border-stone-800";
+            footer.innerHTML = `
+                <div class="container mx-auto px-4">
+                    <p class="font-title text-lg text-stone-300 mb-2">${CONFIG_TEMPLE_NAME}</p>
+                    <p class="mb-4">${CONFIG_TEMPLE_ADDRESS}</p>
+                    ${!state.isAdmin ? `
+                        <button id="btn-login-admin" class="inline-flex items-center gap-2 text-stone-600 hover:text-stone-300 transition px-4 py-2 rounded hover:bg-stone-800">
+                            ${Icons.Lock} <span>Quản trị viên</span>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+            app.appendChild(footer);
+
+            if (!state.isAdmin) {
+                document.getElementById('btn-login-admin').addEventListener('click', handleLogin);
+            }
+        }
+
+        // --- KHỞI CHẠY ỨNG DỤNG LẦN ĐẦU ---
+        window.addEventListener('DOMContentLoaded', () => {
+            render();
+            loadData();
+        });
+    </script>
+</body>
+</html>
