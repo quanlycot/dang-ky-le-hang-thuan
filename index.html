@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Ký Lễ Hằng Thuận - Chùa Bửu Đà</title>
+    <title>Đăng Ký Lễ Hằng Thuận</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,7 +25,7 @@
 </head>
 <body>
     <div id="app" class="min-h-screen flex flex-col font-sans">
-        <!-- Giao diện hiển thị động bằng JavaScript ở đây -->
+        <!-- Giao diện hiển thị động bằng JavaScript -->
     </div>
 
     <script>
@@ -67,14 +67,14 @@
             Eye: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>'
         };
 
-        // --- HÀM XUẤT FILE WORD ---
+        // --- HÀM XUẤT FILE WORD (ĐÃ BỎ TIÊU ĐỀ GIÁO HỘI & CHÙA, THÊM NĂM SINH) ---
         function exportToWordGlobal(ceremony) {
             try {
                 if (!ceremony) {
                     alert("Chưa có dữ liệu để xuất file!");
                     return;
                 }
-                const safe = (txt) => txt ? txt : '...';
+                const safe = (txt) => (txt !== undefined && txt !== null && txt !== '') ? txt : '...';
                 const dateStr = (d) => {
                     if (!d) return '...';
                     const dateObj = new Date(d);
@@ -89,11 +89,14 @@
                     return t;
                 };
 
+                const groomYear = safe(ceremony.groom?.birthYear || ceremony.groomBirthYear);
+                const brideYear = safe(ceremony.bride?.birthYear || ceremony.brideBirthYear);
+
                 const content = `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                 <head>
                     <meta charset="utf-8">
-                    <title>PhieuDangKy</title>
+                    <title>ThongTinLeHangThuan</title>
                     <style>
                         body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.4; }
                         table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px; }
@@ -104,13 +107,8 @@
                     </style>
                 </head>
                 <body>
-                    <p style="text-align: center; font-weight: bold; color: #666; font-size: 11pt; margin:0;">GIÁO HỘI PHẬT GIÁO VIỆT NAM - TP.HCM</p>
-                    <h1 class="title" style="font-size: 18pt; margin-top: 5px;">${CONFIG_TEMPLE_NAME.toUpperCase()}</h1>
-                    <p style="text-align: center; font-style: italic; margin-bottom: 20px;">${CONFIG_TEMPLE_ADDRESS}</p>
-                    <hr style="width: 50%;" />
-                    
-                    <h2 style="text-align: center; text-transform: uppercase; font-size: 16pt; margin-top: 20px;">PHIẾU ĐĂNG KÝ LỄ HẰNG THUẬN</h2>
-                    <p style="text-align: center;">Mã hồ sơ: <b>#${ceremony.id ? String(ceremony.id).slice(-6) : '---'}</b></p>
+                    <h1 class="title" style="font-size: 18pt; margin-top: 10px; margin-bottom: 5px;">THÔNG TIN LỄ HẰNG THUẬN</h1>
+                    <p style="text-align: center; margin-top: 0;">Mã hồ sơ: <b>#${ceremony.id ? String(ceremony.id).slice(-6) : '---'}</b></p>
                     
                     <div style="border: 2px solid #333; padding: 10px; margin: 15px 0; text-align: center; background-color: #f9f9f9;">
                         <b>NGƯỜI LIÊN HỆ:</b> ${safe(ceremony.contactPhone)}
@@ -135,8 +133,12 @@
                             <td colspan="2">NHÀ GÁI</td>
                         </tr>
                         <tr>
-                            <td width="100"><b>Tên:</b></td><td><b>${safe(ceremony.groom?.fullName)}</b></td>
-                            <td width="100"><b>Tên:</b></td><td><b>${safe(ceremony.bride?.fullName)}</b></td>
+                            <td width="110"><b>Họ và tên:</b></td><td><b>${safe(ceremony.groom?.fullName)}</b></td>
+                            <td width="110"><b>Họ và tên:</b></td><td><b>${safe(ceremony.bride?.fullName)}</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>Năm sinh:</b></td><td><b>${groomYear}</b></td>
+                            <td><b>Năm sinh:</b></td><td><b>${brideYear}</b></td>
                         </tr>
                         <tr>
                             <td><b>Ngày sinh:</b></td><td>${safe(ceremony.groom?.birthDate)}</td>
@@ -174,8 +176,8 @@
                 </body>
                 </html>`;
 
-                const blob = new Blob(['﻿', content], { type: 'application/msword' });
-                const fileName = `PhieuDangKy_${safe(ceremony.groom?.fullName).replace(/\s+/g, '')}.doc`;
+                const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
+                const fileName = `ThongTinLeHangThuan_${safe(ceremony.groom?.fullName).replace(/\s+/g, '')}.doc`;
                 
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
@@ -213,11 +215,17 @@
         async function handleFormSubmit(e) {
             e.preventDefault();
             
+            const groomBirthYear = document.getElementById('groom-birthYear').value.trim();
+            const brideBirthYear = document.getElementById('bride-birthYear').value.trim();
+
             const formData = {
                 id: document.getElementById('form-id').value || Date.now().toString(),
                 contactPhone: document.getElementById('form-contactPhone').value,
+                groomBirthYear: groomBirthYear,
+                brideBirthYear: brideBirthYear,
                 groom: {
                     fullName: document.getElementById('groom-fullName').value,
+                    birthYear: groomBirthYear,
                     dharmaName: document.getElementById('groom-dharmaName').value,
                     birthDate: document.getElementById('groom-birthDate').value,
                     phone: document.getElementById('groom-phone').value,
@@ -227,6 +235,7 @@
                 },
                 bride: {
                     fullName: document.getElementById('bride-fullName').value,
+                    birthYear: brideBirthYear,
                     dharmaName: document.getElementById('bride-dharmaName').value,
                     birthDate: document.getElementById('bride-birthDate').value,
                     phone: document.getElementById('bride-phone').value,
@@ -248,7 +257,7 @@
 
             // Kiểm tra trùng lịch đối với Phật tử công cộng
             if (!state.isAdmin && state.bookedDates.includes(formData.date)) {
-                alert("Ngày bạn chọn đã bị trùng lịch. Vui lòng kiểm tra và chọn ngày khác!");
+                alert("Ngày bạn chọn đã có lịch tổ chức. Vui lòng chọn một ngày khác!");
                 return;
             }
 
@@ -324,10 +333,10 @@
             render();
         }
 
-        // --- GIAO DIỆN CHUYỂN ĐỔI CHỮA CHÁY (RE-RENDER ENGINE) ---
+        // --- GIAO DIỆN CHUYỂN ĐỔI (RE-RENDER ENGINE) ---
         function render() {
             const app = document.getElementById('app');
-            app.innerHTML = ''; // Clear cũ
+            app.innerHTML = ''; 
 
             // 1. THANH ĐIỀU HƯỚNG (NAVBAR)
             const nav = document.createElement('nav');
@@ -359,15 +368,15 @@
             // 2. PHẦN NỘI DUNG CHÍNH (MAIN CONTAINER)
             const main = document.createElement('main');
             main.className = "flex-grow container mx-auto px-4 py-8";
-            
-            // ===== ĐIỂM SỬA LỖI CỐT LÕI NẰM Ở ĐÂY =====
-            // Phải đẩy thẻ main lên giao diện TRƯỚC, thì các lệnh document.getElementById bên dưới mới tìm thấy được Form
             app.appendChild(main); 
             
             // XỬ LÝ HIỂN THỊ THEO VIEW
             if (state.view === 'public_form' || state.view === 'form' || state.view === 'edit') {
                 const isEdit = state.view === 'edit';
                 const data = isEdit ? state.selectedCeremony : null;
+
+                const currentGroomYear = data?.groom?.birthYear || data?.groomBirthYear || '';
+                const currentBrideYear = data?.bride?.birthYear || data?.brideBirthYear || '';
 
                 main.innerHTML = `
                     <div class="max-w-4xl mx-auto">
@@ -401,8 +410,9 @@
                                     <h3 class="font-bold text-amber-700 flex items-center gap-2 mb-4 text-lg">${Icons.Users} Nhà Trai</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div><label class="text-sm font-medium">Họ tên chú rể *</label><input id="groom-fullName" required class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Nguyễn Văn A" value="${data?.groom?.fullName || ''}" /></div>
+                                        <div><label class="text-sm font-medium">Năm sinh chú rể *</label><input id="groom-birthYear" required class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 1998" value="${currentGroomYear}" /></div>
                                         <div><label class="text-sm font-medium">Pháp danh</label><input id="groom-dharmaName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Minh Kiến" value="${data?.groom?.dharmaName || ''}" /></div>
-                                        <div><label class="text-sm font-medium">Ngày/Năm sinh</label><input id="groom-birthDate" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 15/08/1995" value="${data?.groom?.birthDate || ''}" /></div>
+                                        <div><label class="text-sm font-medium">Ngày/tháng sinh (Dương lịch)</label><input id="groom-birthDate" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 15/08" value="${data?.groom?.birthDate || ''}" /></div>
                                         <div><label class="text-sm font-medium">Điện thoại</label><input id="groom-phone" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="09xx..." value="${data?.groom?.phone || ''}" /></div>
                                         <div><label class="text-sm font-medium">Cha</label><input id="groom-fatherName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value="${data?.groom?.fatherName || ''}" /></div>
                                         <div><label class="text-sm font-medium">Mẹ</label><input id="groom-motherName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value="${data?.groom?.motherName || ''}" /></div>
@@ -415,8 +425,9 @@
                                     <h3 class="font-bold text-amber-700 flex items-center gap-2 mb-4 text-lg">${Icons.Users} Nhà Gái</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div><label class="text-sm font-medium">Họ tên cô dâu *</label><input id="bride-fullName" required class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Lê Thị B" value="${data?.bride?.fullName || ''}" /></div>
+                                        <div><label class="text-sm font-medium">Năm sinh cô dâu *</label><input id="bride-birthYear" required class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 2000" value="${currentBrideYear}" /></div>
                                         <div><label class="text-sm font-medium">Pháp danh</label><input id="bride-dharmaName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Diệu Âm" value="${data?.bride?.dharmaName || ''}" /></div>
-                                        <div><label class="text-sm font-medium">Ngày/Năm sinh</label><input id="bride-birthDate" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 10/10/1998" value="${data?.bride?.birthDate || ''}" /></div>
+                                        <div><label class="text-sm font-medium">Ngày/tháng sinh (Dương lịch)</label><input id="bride-birthDate" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 10/10" value="${data?.bride?.birthDate || ''}" /></div>
                                         <div><label class="text-sm font-medium">Điện thoại</label><input id="bride-phone" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="09xx..." value="${data?.bride?.phone || ''}" /></div>
                                         <div><label class="text-sm font-medium">Cha</label><input id="bride-fatherName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value="${data?.bride?.fatherName || ''}" /></div>
                                         <div><label class="text-sm font-medium">Mẹ</label><input id="bride-motherName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value="${data?.bride?.motherName || ''}" /></div>
@@ -597,7 +608,7 @@
                             <div class="text-center py-20 bg-white rounded-xl border border-dashed border-stone-300"><p class="text-stone-400">Chưa có hồ sơ nào.</p></div>
                         ` : `
                             <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6" id="ceremonies-grid-container">
-                                <!-- Render danh sách thẻ qua JS bên dưới -->
+                                <!-- Render danh sách thẻ qua JS -->
                             </div>
                         `}
                     </div>
@@ -647,6 +658,9 @@
             
             else if (state.view === 'detail') {
                 const ceremony = state.selectedCeremony;
+                const groomYear = ceremony.groom?.birthYear || ceremony.groomBirthYear || '---';
+                const brideYear = ceremony.bride?.birthYear || ceremony.brideBirthYear || '---';
+
                 main.innerHTML = `
                     <div class="max-w-5xl mx-auto space-y-6 fade-in mb-20">
                         <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-stone-100">
@@ -686,6 +700,7 @@
                                 <div>
                                     <h3 class="font-bold text-stone-800 border-b-2 border-amber-200 pb-2 mb-3 uppercase text-sm">Thông tin Nhà Trai</h3>
                                     <p><b>Họ tên:</b> ${ceremony.groom?.fullName || '---'}</p>
+                                    <p><b>Năm sinh:</b> <span class="text-amber-800 font-bold">${groomYear}</span></p>
                                     <p><b>Ngày sinh:</b> ${ceremony.groom?.birthDate || '---'}</p>
                                     <p><b>Pháp danh:</b> ${ceremony.groom?.dharmaName || '---'}</p>
                                     <p><b>SĐT:</b> ${ceremony.groom?.phone || '---'}</p>
@@ -696,6 +711,7 @@
                                 <div>
                                     <h3 class="font-bold text-stone-800 border-b-2 border-amber-200 pb-2 mb-3 uppercase text-sm">Thông tin Nhà Gái</h3>
                                     <p><b>Họ tên:</b> ${ceremony.bride?.fullName || '---'}</p>
+                                    <p><b>Năm sinh:</b> <span class="text-amber-800 font-bold">${brideYear}</span></p>
                                     <p><b>Ngày sinh:</b> ${ceremony.bride?.birthDate || '---'}</p>
                                     <p><b>Pháp danh:</b> ${ceremony.bride?.dharmaName || '---'}</p>
                                     <p><b>SĐT:</b> ${ceremony.bride?.phone || '---'}</p>
@@ -770,7 +786,7 @@
         // --- KHỞI CHẠY ỨNG DỤNG LẦN ĐẦU ---
         window.addEventListener('DOMContentLoaded', () => {
             render();
-            loadData(); // Tự động load đồng bộ lịch bận ban đầu
+            loadData();
         });
     </script>
 </body>
