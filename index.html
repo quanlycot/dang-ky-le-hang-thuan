@@ -67,7 +67,7 @@
             Eye: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>'
         };
 
-        // --- HÀM XUẤT FILE WORD (ĐÃ BỎ TIÊU ĐỀ GIÁO HỘI & CHÙA, THÊM NĂM SINH) ---
+        // --- HÀM XUẤT FILE WORD (CHỈ GIỮ NĂM SINH, ĐÃ BỎ TIÊU ĐỀ GIÁO HỘI & CHÙA) ---
         function exportToWordGlobal(ceremony) {
             try {
                 if (!ceremony) {
@@ -139,10 +139,6 @@
                         <tr>
                             <td><b>Năm sinh:</b></td><td><b>${groomYear}</b></td>
                             <td><b>Năm sinh:</b></td><td><b>${brideYear}</b></td>
-                        </tr>
-                        <tr>
-                            <td><b>Ngày sinh:</b></td><td>${safe(ceremony.groom?.birthDate)}</td>
-                            <td><b>Ngày sinh:</b></td><td>${safe(ceremony.bride?.birthDate)}</td>
                         </tr>
                         <tr>
                             <td><b>Pháp danh:</b></td><td>${safe(ceremony.groom?.dharmaName)}</td>
@@ -227,7 +223,6 @@
                     fullName: document.getElementById('groom-fullName').value,
                     birthYear: groomBirthYear,
                     dharmaName: document.getElementById('groom-dharmaName').value,
-                    birthDate: document.getElementById('groom-birthDate').value,
                     phone: document.getElementById('groom-phone').value,
                     fatherName: document.getElementById('groom-fatherName').value,
                     motherName: document.getElementById('groom-motherName').value,
@@ -237,7 +232,6 @@
                     fullName: document.getElementById('bride-fullName').value,
                     birthYear: brideBirthYear,
                     dharmaName: document.getElementById('bride-dharmaName').value,
-                    birthDate: document.getElementById('bride-birthDate').value,
                     phone: document.getElementById('bride-phone').value,
                     fatherName: document.getElementById('bride-fatherName').value,
                     motherName: document.getElementById('bride-motherName').value,
@@ -412,7 +406,6 @@
                                         <div><label class="text-sm font-medium">Họ tên chú rể *</label><input id="groom-fullName" required class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Nguyễn Văn A" value="${data?.groom?.fullName || ''}" /></div>
                                         <div><label class="text-sm font-medium">Năm sinh chú rể *</label><input id="groom-birthYear" required class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 1998" value="${currentGroomYear}" /></div>
                                         <div><label class="text-sm font-medium">Pháp danh</label><input id="groom-dharmaName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Minh Kiến" value="${data?.groom?.dharmaName || ''}" /></div>
-                                        <div><label class="text-sm font-medium">Ngày/tháng sinh (Dương lịch)</label><input id="groom-birthDate" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 15/08" value="${data?.groom?.birthDate || ''}" /></div>
                                         <div><label class="text-sm font-medium">Điện thoại</label><input id="groom-phone" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="09xx..." value="${data?.groom?.phone || ''}" /></div>
                                         <div><label class="text-sm font-medium">Cha</label><input id="groom-fatherName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value="${data?.groom?.fatherName || ''}" /></div>
                                         <div><label class="text-sm font-medium">Mẹ</label><input id="groom-motherName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value="${data?.groom?.motherName || ''}" /></div>
@@ -427,7 +420,6 @@
                                         <div><label class="text-sm font-medium">Họ tên cô dâu *</label><input id="bride-fullName" required class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Lê Thị B" value="${data?.bride?.fullName || ''}" /></div>
                                         <div><label class="text-sm font-medium">Năm sinh cô dâu *</label><input id="bride-birthYear" required class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 2000" value="${currentBrideYear}" /></div>
                                         <div><label class="text-sm font-medium">Pháp danh</label><input id="bride-dharmaName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Diệu Âm" value="${data?.bride?.dharmaName || ''}" /></div>
-                                        <div><label class="text-sm font-medium">Ngày/tháng sinh (Dương lịch)</label><input id="bride-birthDate" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="VD: 10/10" value="${data?.bride?.birthDate || ''}" /></div>
                                         <div><label class="text-sm font-medium">Điện thoại</label><input id="bride-phone" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" placeholder="09xx..." value="${data?.bride?.phone || ''}" /></div>
                                         <div><label class="text-sm font-medium">Cha</label><input id="bride-fatherName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value="${data?.bride?.fatherName || ''}" /></div>
                                         <div><label class="text-sm font-medium">Mẹ</label><input id="bride-motherName" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none" value="${data?.bride?.motherName || ''}" /></div>
@@ -448,7 +440,7 @@
                                         <div class="md:col-span-3">
                                             <div class="flex justify-between items-center mb-1">
                                                 <label class="text-sm font-medium">Ngày Dương Lịch *</label>
-                                                ${!state.isAdmin ? `<button type="button" id="toggle-booked-dates" class="text-xs text-blue-600 hover:underline flex items-center gap-1">${Icons.Eye} ${state.showBookedDates ? 'Ẩn ngày bận' : 'Xem ngày Chùa bận'}</button>` : ''}
+                                                ${!state.isAdmin ? `<button type="button" id="toggle-booked-dates" class="text-xs text-blue-600 hover:underline flex items-center gap-1">${Icons.Eye}${state.showBookedDates ? 'Ẩn ngày bận' : 'Xem ngày Chùa bận'}</button>` : ''}
                                             </div>
                                             
                                             ${state.showBookedDates && state.bookedDates.length > 0 ? `
@@ -699,25 +691,23 @@
                             <div class="p-6 grid md:grid-cols-2 gap-8">
                                 <div>
                                     <h3 class="font-bold text-stone-800 border-b-2 border-amber-200 pb-2 mb-3 uppercase text-sm">Thông tin Nhà Trai</h3>
-                                    <p><b>Họ tên:</b> ${ceremony.groom?.fullName || '---'}</p>
-                                    <p><b>Năm sinh:</b> <span class="text-amber-800 font-bold">${groomYear}</span></p>
-                                    <p><b>Ngày sinh:</b> ${ceremony.groom?.birthDate || '---'}</p>
-                                    <p><b>Pháp danh:</b> ${ceremony.groom?.dharmaName || '---'}</p>
-                                    <p><b>SĐT:</b> ${ceremony.groom?.phone || '---'}</p>
-                                    <p><b>Cha:</b> ${ceremony.groom?.fatherName || '---'}</p>
-                                    <p><b>Mẹ:</b> ${ceremony.groom?.motherName || '---'}</p>
-                                    <p><b>Địa chỉ:</b> ${ceremony.groom?.address || '---'}</p>
+                                    <p class="mb-1"><b>Họ tên:</b> ${ceremony.groom?.fullName || '---'}</p>
+                                    <p class="mb-1"><b>Năm sinh:</b> <span class="text-amber-800 font-bold">${groomYear}</span></p>
+                                    <p class="mb-1"><b>Pháp danh:</b> ${ceremony.groom?.dharmaName || '---'}</p>
+                                    <p class="mb-1"><b>SĐT:</b> ${ceremony.groom?.phone || '---'}</p>
+                                    <p class="mb-1"><b>Cha:</b> ${ceremony.groom?.fatherName || '---'}</p>
+                                    <p class="mb-1"><b>Mẹ:</b> ${ceremony.groom?.motherName || '---'}</p>
+                                    <p class="mb-1"><b>Địa chỉ:</b> ${ceremony.groom?.address || '---'}</p>
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-stone-800 border-b-2 border-amber-200 pb-2 mb-3 uppercase text-sm">Thông tin Nhà Gái</h3>
-                                    <p><b>Họ tên:</b> ${ceremony.bride?.fullName || '---'}</p>
-                                    <p><b>Năm sinh:</b> <span class="text-amber-800 font-bold">${brideYear}</span></p>
-                                    <p><b>Ngày sinh:</b> ${ceremony.bride?.birthDate || '---'}</p>
-                                    <p><b>Pháp danh:</b> ${ceremony.bride?.dharmaName || '---'}</p>
-                                    <p><b>SĐT:</b> ${ceremony.bride?.phone || '---'}</p>
-                                    <p><b>Cha:</b> ${ceremony.bride?.fatherName || '---'}</p>
-                                    <p><b>Mẹ:</b> ${ceremony.bride?.motherName || '---'}</p>
-                                    <p><b>Địa chỉ:</b> ${ceremony.bride?.address || '---'}</p>
+                                    <p class="mb-1"><b>Họ tên:</b> ${ceremony.bride?.fullName || '---'}</p>
+                                    <p class="mb-1"><b>Năm sinh:</b> <span class="text-amber-800 font-bold">${brideYear}</span></p>
+                                    <p class="mb-1"><b>Pháp danh:</b> ${ceremony.bride?.dharmaName || '---'}</p>
+                                    <p class="mb-1"><b>SĐT:</b> ${ceremony.bride?.phone || '---'}</p>
+                                    <p class="mb-1"><b>Cha:</b> ${ceremony.bride?.fatherName || '---'}</p>
+                                    <p class="mb-1"><b>Mẹ:</b> ${ceremony.bride?.motherName || '---'}</p>
+                                    <p class="mb-1"><b>Địa chỉ:</b> ${ceremony.bride?.address || '---'}</p>
                                 </div>
                             </div>
 
@@ -760,34 +750,3 @@
                     render();
                 });
                 document.getElementById('btn-export-word').addEventListener('click', () => exportToWordGlobal(ceremony));
-            }
-            
-            // 3. CHÂN TRANG (FOOTER)
-            const footer = document.createElement('footer');
-            footer.className = "bg-stone-900 text-stone-400 py-8 text-center text-sm mt-auto border-t border-stone-800";
-            footer.innerHTML = `
-                <div class="container mx-auto px-4">
-                    <p class="font-title text-lg text-stone-300 mb-2">${CONFIG_TEMPLE_NAME}</p>
-                    <p class="mb-4">${CONFIG_TEMPLE_ADDRESS}</p>
-                    ${!state.isAdmin ? `
-                        <button id="btn-login-admin" class="inline-flex items-center gap-2 text-stone-600 hover:text-stone-300 transition px-4 py-2 rounded hover:bg-stone-800">
-                            ${Icons.Lock} <span>Quản trị viên</span>
-                        </button>
-                    ` : ''}
-                </div>
-            `;
-            app.appendChild(footer);
-
-            if (!state.isAdmin) {
-                document.getElementById('btn-login-admin').addEventListener('click', handleLogin);
-            }
-        }
-
-        // --- KHỞI CHẠY ỨNG DỤNG LẦN ĐẦU ---
-        window.addEventListener('DOMContentLoaded', () => {
-            render();
-            loadData();
-        });
-    </script>
-</body>
-</html>
